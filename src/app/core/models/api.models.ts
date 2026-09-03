@@ -56,6 +56,8 @@ export interface ChatAvatar {
   color: string;
   url?: string;
 }
+export type ChatHistoryStatus =
+  'waiting_seed' | 'pending' | 'fetching' | 'timeout' | 'complete' | 'exhausted';
 export interface Chat {
   id: string;
   jid?: string;
@@ -66,7 +68,9 @@ export interface Chat {
   lastMessageAt?: string;
   lastMessageTimestamp?: number;
   messageCount?: number;
-  historyStatus?: 'complete' | 'fetching' | 'timeout' | 'waiting_seed';
+  historyStatus?: ChatHistoryStatus;
+  waitingSeed?: boolean;
+  historyComplete?: boolean;
   type?: string;
   unreadCount?: number;
   favorite?: boolean;
@@ -132,6 +136,34 @@ export interface SyncStatus {
   backfillCurrent?: number;
   backfillTotal?: number;
   messagesNew?: number;
+  synced?: number;
+  waitingSeed?: number;
+  timeouts?: number;
+  errors?: number;
+  pending?: number;
+}
+export type WebBootstrapState =
+  | 'inactive'
+  | 'starting'
+  | 'qr_required'
+  | 'connecting'
+  | 'searching_chat'
+  | 'seed_found'
+  | 'seed_validated'
+  | 'seed_emitted'
+  | 'backfill_pending'
+  | 'completed'
+  | 'failed';
+export interface WebBootstrapJob {
+  jobId: string;
+  chatId: number;
+  state: WebBootstrapState;
+  qrAvailable: boolean;
+  candidateEmitted?: boolean;
+  backfillEnqueued?: boolean;
+  transportAvailable?: boolean;
+  error?: string;
+  elapsedSeconds?: number;
 }
 export interface ApiErrorBody {
   error: { code: string; message: string };

@@ -41,6 +41,20 @@
   color: var(--text-secondary);
   font-size: 13px;
 }
+.pending-history {
+  align-content: center;
+  gap: 8px;
+  padding: 28px;
+  text-align: center;
+}
+.pending-history strong {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+.pending-history span {
+  max-width: 480px;
+  line-height: 1.5;
+}
 .loading {
   display: grid;
   gap: 9px;

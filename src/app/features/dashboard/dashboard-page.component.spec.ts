@@ -5,6 +5,7 @@ import { RealtimeService } from '../../core/events/realtime.service';
 import { ChatService } from '../../core/services/chat.service';
 import { SessionService } from '../../core/services/session.service';
 import { SyncService } from '../../core/services/sync.service';
+import { WebBootstrapService } from '../../core/services/web-bootstrap.service';
 import { DashboardPageComponent } from './dashboard-page.component';
 
 describe('Dashboard SSE reconnection', () => {
@@ -30,6 +31,10 @@ describe('Dashboard SSE reconnection', () => {
         {
           provide: RealtimeService,
           useValue: { connect: vi.fn(), connection$: connection, events$: events },
+        },
+        {
+          provide: WebBootstrapService,
+          useValue: { recoverPending: () => of({ state: 'starting', qrRequired: false }) },
         },
         { provide: Router, useValue: { navigate: vi.fn() } },
         {

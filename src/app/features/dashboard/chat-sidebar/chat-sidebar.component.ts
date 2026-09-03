@@ -39,6 +39,10 @@ export class ChatSidebarComponent {
   }
   trackById = (_: number, chat: Chat) => chat.id;
   preview(chat: Chat) {
+    if (chat.waitingSeed || chat.historyStatus === 'waiting_seed') return 'Historial pendiente';
+    if (chat.historyStatus === 'pending') return 'Pendiente de recuperación';
+    if (chat.historyStatus === 'fetching') return 'Recuperando historial…';
+    if (chat.historyStatus === 'timeout') return 'Reintento pendiente';
     return chat.preview || previewFor(undefined, chat.preview);
   }
 }

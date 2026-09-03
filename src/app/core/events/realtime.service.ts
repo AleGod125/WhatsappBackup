@@ -13,6 +13,12 @@ const EVENT_NAMES = [
   'history.progress',
   'backfill.progress',
   'sync.status',
+  'history.recovery.started',
+  'history.recovery.progress',
+  'history.recovery.completed',
+  'history.seed.found',
+  'history.seed.not_found',
+  'history.backfill.started',
 ] as const;
 
 @Injectable({ providedIn: 'root' })

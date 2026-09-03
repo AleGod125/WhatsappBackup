@@ -1,0 +1,40 @@
+<div class="backdrop" (click)="close.emit()">
+  <section
+    class="panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="recovery-title"
+    (click)="$event.stopPropagation()"
+  >
+    <header>
+      <div>
+        <span>RECUPERACIÓN DE HISTORIAL</span>
+        <h2 id="recovery-title">{{ title() }}</h2>
+      </div>
+      <button type="button" aria-label="Cerrar" (click)="close.emit()">×</button>
+    </header>
+    <div class="connection-scope">
+      <b>WhatsApp principal</b><span>Sin cambios</span><b>Recuperador auxiliar</b
+      ><span>{{ label() }}</span>
+    </div>
+    @if (qrUrl()) {
+      <div class="aux-qr">
+        <strong>Vinculación auxiliar para recuperar historial pendiente</strong
+        ><img
+          [src]="qrUrl()"
+          alt="Código QR del recuperador auxiliar"
+          (error)="onQrError()"
+        /><small>Este código es independiente de la conexión principal de WhatsApp Backup.</small>
+      </div>
+    } @else {
+      <div class="progress">
+        <i [class.done]="state() === 'completed'" [class.failed]="state() === 'failed'"></i
+        ><strong>{{ label() }}</strong
+        ><small>Estado del proceso: {{ state() }}</small>
+      </div>
+    }
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+  </section>
+</div>

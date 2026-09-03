@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { SyncStatus } from '../../../core/models/api.models';
 @Component({
   selector: 'app-sync-indicator',
@@ -21,7 +21,27 @@ import { SyncStatus } from '../../../core/models/api.models';
       } @else if (status()?.backfillTotal) {
         <small>{{ status()?.backfillCurrent }}/{{ status()?.backfillTotal }}</small>
       }
+      @if (status()?.waitingSeed; as waiting) {
+        <small class="warning"
+          >Sincronización finalizada con {{ waiting }} conversaciones pendientes</small
+        >
+      }
     </div>
+    @if (hasRecoverySummary()) {
+      <details>
+        <summary>Resumen</summary>
+        <span>Sincronizados: {{ status()?.synced ?? 0 }}</span>
+        <span>Pendientes de historial: {{ status()?.waitingSeed ?? 0 }}</span>
+        <span>Pendientes de recuperación: {{ status()?.pending ?? 0 }}</span>
+        <span>Timeouts: {{ status()?.timeouts ?? 0 }}</span>
+        <span>Errores: {{ status()?.errors ?? 0 }}</span>
+        @if ((status()?.waitingSeed ?? 0) > 0) {
+          <button type="button" (click)="recoverPending.emit()">
+            Recuperar historiales pendientes
+          </button>
+        }
+      </details>
+    }
   </div>`,
   styles: [
     `
@@ -45,6 +65,7 @@ import { SyncStatus } from '../../../core/models/api.models';
       }
       .sync div {
         min-width: 0;
+        flex: 1;
       }
       .sync strong,
       .sync small {
@@ -58,6 +79,40 @@ import { SyncStatus } from '../../../core/models/api.models';
       .sync small {
         margin-top: 2px;
       }
+      .warning {
+        color: #d9ae70;
+        white-space: normal;
+      }
+      details {
+        position: relative;
+        font-size: 11px;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--accent);
+      }
+      details[open] {
+        position: absolute;
+        z-index: 8;
+        left: 10px;
+        right: 10px;
+        bottom: 48px;
+        display: grid;
+        gap: 5px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--bg-panel);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      details button {
+        margin-top: 5px;
+        padding: 7px;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: transparent;
+        color: var(--text-secondary);
+      }
     `,
   ],
 })
@@ -65,4 +120,11 @@ export class SyncIndicatorComponent {
   status = input<SyncStatus>();
   disconnected = input(false);
   reconnecting = input(false);
+  recoverPending = output<void>();
+  hasRecoverySummary() {
+    const value = this.status();
+    return [value?.synced, value?.waitingSeed, value?.timeouts, value?.errors, value?.pending].some(
+      (item) => item !== undefined,
+    );
+  }
 }

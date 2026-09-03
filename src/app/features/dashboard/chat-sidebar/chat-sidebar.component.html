@@ -46,6 +46,9 @@
             ><time>{{ chat.lastMessageAt | date: 'HH:mm' }}</time></span
           ><span class="bottom"
             ><span>{{ preview(chat) }}</span>
+            @if (chat.waitingSeed || chat.historyStatus === 'waiting_seed') {
+              <em>Pendiente</em>
+            }
             @if (chat.unreadCount) {
               <b>{{ chat.unreadCount }}</b>
             }

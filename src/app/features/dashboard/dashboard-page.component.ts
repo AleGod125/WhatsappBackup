@@ -10,7 +10,14 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppError, Chat, Media, Message, SyncStatus } from '../../core/models/api.models';
+import {
+  AppError,
+  Chat,
+  Media,
+  Message,
+  SyncStatus,
+  WebBootstrapState,
+} from '../../core/models/api.models';
 import { ChatService, normalizeChat } from '../../core/services/chat.service';
 import { normalizeMedia, normalizeMessage } from '../../core/services/message.service';
 import { RealtimeService } from '../../core/events/realtime.service';
@@ -21,10 +28,18 @@ import { ConversationComponent } from './conversation/conversation.component';
 import { SyncIndicatorComponent } from './sync-status/sync-indicator.component';
 import { SessionService } from '../../core/services/session.service';
 import { previewFor } from '../../shared/utils/display';
+import { WebBootstrapService } from '../../core/services/web-bootstrap.service';
+import { HistoryRecoveryPanelComponent } from './recovery/history-recovery-panel.component';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [LeftRailComponent, ChatSidebarComponent, ConversationComponent, SyncIndicatorComponent],
+  imports: [
+    LeftRailComponent,
+    ChatSidebarComponent,
+    ConversationComponent,
+    SyncIndicatorComponent,
+    HistoryRecoveryPanelComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss',
@@ -33,6 +48,7 @@ export class DashboardPageComponent implements OnInit {
   private readonly chatsApi = inject(ChatService);
   private readonly syncApi = inject(SyncService);
   private readonly sessionApi = inject(SessionService);
+  private readonly recoveryApi = inject(WebBootstrapService);
   private readonly realtime = inject(RealtimeService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -49,6 +65,10 @@ export class DashboardPageComponent implements OnInit {
   readonly syncBusy = signal(false);
   readonly toast = signal<string | undefined>(undefined);
   readonly error = signal<string | undefined>(undefined);
+  readonly globalRecoveryOpen = signal(false);
+  readonly globalRecoveryState = signal<WebBootstrapState>('starting');
+  readonly globalRecoveryError = signal<string | undefined>(undefined);
+  readonly globalRecoveryQrRequired = signal(false);
   readonly syncRunning = computed(() => this.syncBusy() || isSyncRunning(this.sync()));
   readonly syncDisabled = computed(
     () => this.localMode() || this.disconnected() || this.syncRunning(),
@@ -112,6 +132,30 @@ export class DashboardPageComponent implements OnInit {
         },
       });
   }
+  recoverPendingHistories() {
+    this.globalRecoveryOpen.set(true);
+    this.globalRecoveryState.set('starting');
+    this.globalRecoveryError.set(undefined);
+    this.globalRecoveryQrRequired.set(false);
+    this.recoveryApi
+      .recoverPending()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.globalRecoveryState.set(result.state);
+          this.globalRecoveryQrRequired.set(result.qrRequired);
+          this.globalRecoveryError.set(result.message);
+        },
+        error: (error: AppError) => {
+          this.globalRecoveryState.set('failed');
+          this.globalRecoveryError.set(error.message);
+        },
+      });
+  }
+  recoveryCompleted() {
+    this.loadSync();
+    this.loadChats();
+  }
   select(chat: Chat) {
     this.selected.set(chat);
     this.router.navigate(['/dashboard', chat.id]);
@@ -120,7 +164,7 @@ export class DashboardPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (detail) => {
-          if (this.selected()?.id === chat.id) this.selected.set({ ...chat, ...detail });
+          if (this.selected()?.id === chat.id) this.selected.set(mergeDefined(chat, detail));
         },
       });
   }
@@ -162,7 +206,7 @@ export class DashboardPageComponent implements OnInit {
             .subscribe({
               next: (detail) => {
                 if (this.selected()?.id === selectedId) {
-                  this.selected.set(detail);
+                  this.selected.update((current) => mergeDefined(current, detail));
                   this.conversation()?.reload();
                 }
               },

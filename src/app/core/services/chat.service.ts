@@ -23,6 +23,12 @@ export class ChatService {
 }
 export function normalizeChat(value: unknown): Chat {
   const r = (value ?? {}) as Record<string, unknown>;
+  const history =
+    r['history'] && typeof r['history'] === 'object'
+      ? (r['history'] as Record<string, unknown>)
+      : undefined;
+  const historyStatusValue =
+    r['history_status'] ?? r['history_state'] ?? r['backfill_status'] ?? history?.['status'];
   const avatarRaw =
     r['avatar'] && typeof r['avatar'] === 'object'
       ? (r['avatar'] as Record<string, unknown>)
@@ -46,9 +52,15 @@ export function normalizeChat(value: unknown): Chat {
     lastMessageAt: optionalString(r['last_message_at'] ?? r['lastMessageAt']),
     lastMessageTimestamp: optionalNumber(r['last_message_timestamp']),
     messageCount: optionalNumber(r['message_count'] ?? r['messageCount']),
-    historyStatus: normalizeHistoryStatus(
-      r['history_status'] ?? r['history_state'] ?? r['backfill_status'],
-    ),
+    historyStatus: normalizeHistoryStatus(historyStatusValue),
+    waitingSeed:
+      r['waiting_seed'] === true ||
+      history?.['waiting_seed'] === true ||
+      String(historyStatusValue ?? '').toLowerCase() === 'waiting_seed',
+    historyComplete:
+      r['history_complete'] === true ||
+      history?.['complete'] === true ||
+      ['complete', 'exhausted'].includes(String(historyStatusValue ?? '').toLowerCase()),
     type: optionalString(r['chat_type'] ?? r['type']),
     unreadCount: optionalNumber(r['unread_count']),
     favorite: r['favorite'] === true,
@@ -91,7 +103,9 @@ export const optionalNumber = (value: unknown): number | undefined =>
 const dateValue = (value?: string) => (value ? new Date(value).getTime() || 0 : 0);
 const normalizeHistoryStatus = (value: unknown): Chat['historyStatus'] => {
   const status = String(value ?? '').toLowerCase();
-  return ['complete', 'fetching', 'timeout', 'waiting_seed'].includes(status)
+  return ['complete', 'exhausted', 'fetching', 'pending', 'timeout', 'waiting_seed'].includes(
+    status,
+  )
     ? (status as Chat['historyStatus'])
     : undefined;
 };

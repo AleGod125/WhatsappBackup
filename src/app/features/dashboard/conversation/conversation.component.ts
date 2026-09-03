@@ -11,16 +11,29 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
-import { Chat, Media, Message, MessageCursor } from '../../../core/models/api.models';
+import {
+  Chat,
+  Media,
+  Message,
+  MessageCursor,
+  WebBootstrapState,
+} from '../../../core/models/api.models';
 import { MessageService } from '../../../core/services/message.service';
 import { AvatarComponent } from '../../../shared/components/avatar.component';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MediaViewerComponent } from '../media/media-viewer.component';
-import { SyncService } from '../../../core/services/sync.service';
+import { HistoryRecoveryPanelComponent } from '../recovery/history-recovery-panel.component';
+import { WebBootstrapService } from '../../../core/services/web-bootstrap.service';
 
 @Component({
   selector: 'app-conversation',
-  imports: [DatePipe, AvatarComponent, MessageListComponent, MediaViewerComponent],
+  imports: [
+    DatePipe,
+    AvatarComponent,
+    MessageListComponent,
+    MediaViewerComponent,
+    HistoryRecoveryPanelComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './conversation.component.html',
   styleUrl: './conversation.component.scss',
@@ -29,7 +42,7 @@ export class ConversationComponent implements OnChanges {
   chat = input.required<Chat>();
   private readonly messagesApi = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly syncApi = inject(SyncService);
+  private readonly recoveryApi = inject(WebBootstrapService);
   private readonly list = viewChild(MessageListComponent);
   readonly messages = signal<Message[]>([]);
   readonly loading = signal(true);
@@ -37,7 +50,10 @@ export class ConversationComponent implements OnChanges {
   readonly hasMore = signal(false);
   readonly newMessages = signal(0);
   readonly viewer = signal<{ media: Media; type: Message['type'] } | undefined>(undefined);
-  readonly historyRetrying = signal(false);
+  readonly recoveryOpen = signal(false);
+  readonly recoveryState = signal<WebBootstrapState>('starting');
+  readonly recoveryError = signal<string | undefined>(undefined);
+  readonly recoveryQrRequired = signal(false);
   private cursor?: MessageCursor;
   private loadToken = 0;
   ngOnChanges(changes: SimpleChanges) {
@@ -93,15 +109,26 @@ export class ConversationComponent implements OnChanges {
     this.newMessages.set(0);
     this.list()?.scrollToBottom(true);
   }
-  retryHistory() {
-    if (this.historyRetrying()) return;
-    this.historyRetrying.set(true);
-    this.syncApi
-      .run()
+  recoverHistory() {
+    const chatId = Number(this.chat().id);
+    if (!Number.isInteger(chatId)) return;
+    this.recoveryOpen.set(true);
+    this.recoveryState.set('starting');
+    this.recoveryError.set(undefined);
+    this.recoveryQrRequired.set(false);
+    this.recoveryApi
+      .recoverChat(chatId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.historyRetrying.set(false),
-        error: () => this.historyRetrying.set(false),
+        next: (result) => {
+          this.recoveryState.set(result.state);
+          this.recoveryQrRequired.set(result.qrRequired);
+          this.recoveryError.set(result.message);
+        },
+        error: (error: { message: string }) => {
+          this.recoveryState.set('failed');
+          this.recoveryError.set(error.message);
+        },
       });
   }
   reload() {

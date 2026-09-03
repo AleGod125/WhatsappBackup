@@ -1,0 +1,105 @@
+.backdrop {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(3, 8, 7, 0.72);
+  backdrop-filter: blur(3px);
+}
+.panel {
+  width: min(460px, 100%);
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-panel);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+header span {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+}
+h2 {
+  margin: 5px 0 0;
+  font-size: 19px;
+}
+header button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 22px;
+  cursor: pointer;
+}
+.connection-scope {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px 16px;
+  margin: 20px 0;
+  padding: 13px;
+  border-radius: 10px;
+  background: var(--bg-input);
+  font-size: 12px;
+}
+.connection-scope span {
+  color: var(--text-secondary);
+  text-align: right;
+}
+.progress,
+.aux-qr {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: 20px;
+  text-align: center;
+}
+.progress i {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #34514a;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+.progress i.done {
+  border: 0;
+  background: var(--accent);
+  animation: none;
+}
+.progress i.failed {
+  border-color: #bc6262;
+  animation: none;
+}
+.progress small,
+.aux-qr small {
+  color: var(--text-secondary);
+}
+.aux-qr img {
+  width: 280px;
+  max-width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  background: white;
+}
+.error {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(170, 50, 50, 0.15);
+  color: #efb0b0;
+  font-size: 12px;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

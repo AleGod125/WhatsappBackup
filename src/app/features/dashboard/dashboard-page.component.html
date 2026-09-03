@@ -15,6 +15,7 @@
       [status]="sync()"
       [disconnected]="disconnected()"
       [reconnecting]="reconnecting()"
+      (recoverPending)="recoverPendingHistories()"
     />
   </section>
   <section class="main-panel">
@@ -38,3 +39,12 @@
     <div class="toast" role="status">{{ toast() }}</div>
   }
 </main>
+@if (globalRecoveryOpen()) {
+  <app-history-recovery-panel
+    [initialState]="globalRecoveryState()"
+    [initialError]="globalRecoveryError()"
+    [initialQrRequired]="globalRecoveryQrRequired()"
+    (close)="globalRecoveryOpen.set(false)"
+    (completed)="recoveryCompleted()"
+  />
+}

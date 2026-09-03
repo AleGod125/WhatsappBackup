@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { Message } from '../../../core/models/api.models';
 import { MessageService } from '../../../core/services/message.service';
 import { SyncService } from '../../../core/services/sync.service';
+import { WebBootstrapService } from '../../../core/services/web-bootstrap.service';
 import { ConversationComponent } from './conversation.component';
 
 const message = (id: string): Message => ({
@@ -24,6 +25,10 @@ describe('ConversationComponent realtime updates', () => {
           useValue: { list: () => of({ items: [message('a'), message('b')], hasMore: false }) },
         },
         { provide: SyncService, useValue: { run: () => of({}) } },
+        {
+          provide: WebBootstrapService,
+          useValue: { recoverChat: () => of({ state: 'starting', qrRequired: false }) },
+        },
       ],
     }),
   );
@@ -57,9 +62,15 @@ describe('ConversationComponent realtime updates', () => {
   });
   it('does not label waiting_seed as synchronized', () => {
     const fixture = create();
+    fixture.componentInstance.messages.set([]);
+    fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain(
       'todavía no tiene un punto de recuperación',
     );
+    expect(fixture.nativeElement.textContent).toContain(
+      'El historial de esta conversación aún no se ha recuperado.',
+    );
+    expect(fixture.nativeElement.textContent).toContain('Intentar recuperar historial');
     expect(fixture.nativeElement.textContent).not.toContain('Historial sincronizado');
   });
 });

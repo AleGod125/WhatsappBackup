@@ -6,7 +6,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { Media, Message } from '../../../core/models/api.models';
+import { ChatHistoryStatus, Media, Message } from '../../../core/models/api.models';
 import { MessageBubbleComponent } from '../message-bubble/message-bubble.component';
 
 @Component({
@@ -21,6 +21,7 @@ export class MessageListComponent {
   loading = input(false);
   loadingOlder = input(false);
   hasMore = input(false);
+  historyStatus = input<ChatHistoryStatus>();
   loadOlder = output<void>();
   mediaOpen = output<{ media: Media; type: Message['type'] }>();
   private readonly scroller = viewChild.required<ElementRef<HTMLElement>>('scroller');

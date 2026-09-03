@@ -112,4 +112,38 @@ describe('API adapters', () => {
     expect(normalizeSyncStatus({ history_done: true, media: { pending: 3 } })).toEqual(
       expect.objectContaining({ history: 'complete', mediaPending: 3 }),
     ));
+  it('preserves waiting_seed chat state', () =>
+    expect(
+      normalizeChat({
+        id: 9,
+        display_name: 'Isaac Virtual Tec',
+        history_status: 'waiting_seed',
+        waiting_seed: true,
+        history_complete: false,
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        historyStatus: 'waiting_seed',
+        waitingSeed: true,
+        historyComplete: false,
+      }),
+    ));
+  it('preserves the synchronization recovery breakdown', () =>
+    expect(
+      normalizeSyncStatus({ synced: 7, waiting_seed: 30, timeouts: 2, errors: 0, pending: 1 }),
+    ).toEqual(
+      expect.objectContaining({ synced: 7, waitingSeed: 30, timeouts: 2, errors: 0, pending: 1 }),
+    ));
+  it('uses the current chat breakdown from the real sync/status shape', () =>
+    expect(
+      normalizeSyncStatus({
+        result: { synced: 0, waiting_seed: 0, timeouts: 0, errors: 0, pending: 0 },
+        chats: {
+          chats_complete: 7,
+          chats_waiting_seed: 29,
+          chats_pending: 2,
+          por_estado: { timeout: 2 },
+        },
+      }),
+    ).toEqual(expect.objectContaining({ synced: 7, waitingSeed: 29, timeouts: 2, pending: 2 })));
 });

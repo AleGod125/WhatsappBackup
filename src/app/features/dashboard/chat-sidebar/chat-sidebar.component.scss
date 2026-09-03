@@ -148,6 +148,15 @@ header button {
   color: #06251d;
   font-size: 10px;
 }
+.bottom em {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(228, 168, 85, 0.12);
+  color: #d9ae70;
+  font-size: 9px;
+  font-style: normal;
+}
 .no-results {
   padding: 45px 20px;
   text-align: center;
