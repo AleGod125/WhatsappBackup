@@ -1,0 +1,90 @@
+<main class="pairing-page">
+  <div class="brand"><span class="brand-mark">W</span><span>WhatsApp Backup</span></div>
+  <section class="pairing-card" aria-live="polite">
+    <header>
+      <span class="eyebrow">VINCULACIÓN SEGURA</span>
+      <h1>{{ title() }}</h1>
+      <p>Conecta tu teléfono una sola vez para consultar tu copia local.</p>
+    </header>
+    <div class="pairing-content">
+      <section class="qr-panel">
+        @if (linked()) {
+          <div class="success" aria-label="Cuenta vinculada">✓</div>
+        } @else if (qrUrl()) {
+          <div class="qr">
+            <img
+              [src]="qrUrl()"
+              alt="Código QR para vincular WhatsApp"
+              (load)="onQrLoaded()"
+              (error)="onQrImageError()"
+            /><span class="scan-line"></span>
+          </div>
+          <p class="expires">
+            Se renueva automáticamente en <strong>{{ countdown() }}</strong>
+          </p>
+        } @else {
+          <div class="qr-placeholder" [class.failed]="error()">
+            <span class="loader" [class.paused]="!busy()"></span
+            ><strong>{{ error() ? 'Código no disponible' : 'Generando código seguro…' }}</strong>
+          </div>
+        }
+        <div class="status">
+          <span class="status-dot" [class.pulse]="busy()"></span><span>{{ status() }}</span>
+        </div>
+        @if (error()) {
+          <div class="offline">
+            <span>!</span><strong>{{ error() }}</strong>
+          </div>
+        }
+        @if (fallbackVisible() && !linked()) {
+          <button
+            type="button"
+            class="primary"
+            (click)="retryPairing()"
+            [disabled]="busy() && !error()"
+          >
+            Generar un nuevo código
+          </button>
+        }
+      </section>
+      <section class="instructions">
+        <div class="platform-tabs" role="tablist" aria-label="Tipo de teléfono">
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="platform() === 'android'"
+            (click)="setPlatform('android')"
+          >
+            Android
+          </button>
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="platform() === 'iphone'"
+            (click)="setPlatform('iphone')"
+          >
+            iPhone
+          </button>
+        </div>
+        <h2>En tu teléfono</h2>
+        <ol>
+          <li>Abre <b>WhatsApp</b>.</li>
+          @if (platform() === 'android') {
+            <li>Toca el menú de <b>tres puntos</b>.</li>
+          } @else {
+            <li>Abre <b>Configuración</b>.</li>
+          }
+          <li>Selecciona <b>Dispositivos vinculados</b>.</li>
+          <li>Toca <b>Vincular un dispositivo</b>.</li>
+          <li>Desbloquea tu teléfono si te lo pide.</li>
+          <li>Apunta la cámara hacia este código QR.</li>
+          <li>Espera la confirmación; entraremos automáticamente.</li>
+        </ol>
+      </section>
+    </div>
+  </section>
+  <p class="privacy">
+    Solo lectura · No puedes enviar mensajes desde aquí · La vinculación se mantiene en tu servicio
+    local
+  </p>
+</main>

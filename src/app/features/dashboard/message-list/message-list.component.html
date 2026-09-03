@@ -1,0 +1,28 @@
+<div #scroller class="message-scroll" (scroll)="onScroll()">
+  @if (loading()) {
+    <div class="loading">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <i [class.right]="i % 2 === 0"></i>
+      }
+    </div>
+  } @else {
+    @if (hasMore() && loadingOlder()) {
+      <div class="older" aria-live="polite">Cargando mensajes anteriores…</div>
+    } @else if (messages().length) {
+      <div class="history-start">Inicio del historial almacenado</div>
+    }
+    @for (message of messages(); track message.id; let index = $index) {
+      @if (dayChanged(index)) {
+        <div class="day">{{ dayLabel(message.timestamp) }}</div>
+      }
+      <app-message-bubble
+        [message]="message"
+        [grouped]="grouped(index)"
+        (openMedia)="mediaOpen.emit($event)"
+        (mediaLayoutChanged)="onMediaLayout()"
+      />
+    } @empty {
+      <div class="empty">Esta conversación todavía no tiene mensajes almacenados.</div>
+    }
+  }
+</div>

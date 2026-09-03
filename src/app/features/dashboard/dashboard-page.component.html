@@ -1,0 +1,40 @@
+<main class="dashboard">
+  <app-left-rail
+    [syncRunning]="syncRunning()"
+    [syncDisabled]="syncDisabled()"
+    [syncTooltip]="syncTooltip()"
+    (syncRequested)="runSync()"
+  />
+  <section class="sidebar-column">
+    <app-chat-sidebar
+      [chats]="chats()"
+      [selectedId]="selected()?.id"
+      [loading]="loading()"
+      (chatSelected)="select($event)"
+    /><app-sync-indicator
+      [status]="sync()"
+      [disconnected]="disconnected()"
+      [reconnecting]="reconnecting()"
+    />
+  </section>
+  <section class="main-panel">
+    @if (disconnected()) {
+      <div class="connection-banner">
+        Conexión con WhatsApp perdida. El historial visible permanece disponible.
+      </div>
+    }
+    @if (selected(); as chat) {
+      <app-conversation [chat]="chat" />
+    } @else {
+      <div class="empty-state">
+        <div class="illustration"><span>◫</span><i></i><b></b></div>
+        <h2>Selecciona una conversación</h2>
+        <p>Consulta tu historial local sincronizado.</p>
+        <small>Solo lectura · tus datos permanecen en tu servicio local</small>
+      </div>
+    }
+  </section>
+  @if (toast()) {
+    <div class="toast" role="status">{{ toast() }}</div>
+  }
+</main>

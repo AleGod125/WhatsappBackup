@@ -1,0 +1,59 @@
+:root {
+  color-scheme: dark;
+  --bg-app: #0b1211;
+  --bg-rail: #101716;
+  --bg-sidebar: #121b19;
+  --bg-panel: #182321;
+  --bg-chat: #0d1715;
+  --bg-input: #202c29;
+  --bg-hover: #1b2926;
+  --bg-selected: #263632;
+  --bubble-out: #145342;
+  --bubble-in: #202c29;
+  --text-primary: #ecf3f1;
+  --text-secondary: #98aaa6;
+  --text-muted: #687975;
+  --accent: #49c899;
+  --border: rgba(211, 236, 228, 0.09);
+  --skeleton: #23312e;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+body {
+  overflow: hidden;
+}
+button,
+input {
+  font-family: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3a4a46 transparent;
+}
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a4a46;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

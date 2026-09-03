@@ -1,0 +1,241 @@
+:host {
+  display: block;
+}
+.row {
+  display: flex;
+  margin: 2px 0;
+  padding: 0 6.5%;
+  justify-content: flex-start;
+}
+.row.mine {
+  justify-content: flex-end;
+}
+.row.grouped {
+  margin-top: -1px;
+}
+.bubble {
+  position: relative;
+  min-width: 54px;
+  width: fit-content;
+  max-width: min(64%, 620px);
+  padding: 7px 9px 6px;
+  border-radius: 5px 13px 13px 13px;
+  background: var(--bubble-in);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.16);
+}
+.mine .bubble {
+  background: var(--bubble-out);
+  border-radius: 13px 5px 13px 13px;
+}
+.text,
+.caption {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+  padding: 0 44px 2px 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.caption {
+  padding-top: 5px;
+}
+.bubble > time {
+  float: right;
+  margin: -11px 0 0 10px;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+blockquote {
+  margin: 0 0 6px;
+  padding: 7px 9px;
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.17);
+  font-size: 12px;
+  overflow: hidden;
+}
+blockquote b,
+blockquote span {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+blockquote b {
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.system {
+  width: max-content;
+  max-width: 70%;
+  margin: 13px auto;
+  padding: 5px 11px;
+  border-radius: 12px;
+  background: rgba(17, 30, 27, 0.8);
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.system time {
+  margin-left: 7px;
+}
+.system.notice {
+  padding: 8px 13px;
+  border: 1px solid var(--border);
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+.media,
+.sticker {
+  position: relative;
+  display: block;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.media img {
+  display: block;
+  width: min(320px, 50vw);
+  height: auto;
+  min-height: 150px;
+  max-height: 320px;
+  object-fit: cover;
+  background: var(--skeleton);
+}
+.video-placeholder {
+  display: grid;
+  place-items: center;
+  width: min(320px, 50vw);
+  height: 180px;
+  background: linear-gradient(145deg, #1c2926, #111917);
+  font-size: 38px;
+}
+.media span {
+  position: absolute;
+  left: 8px;
+  bottom: 7px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.55);
+  font-size: 11px;
+}
+.video i {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.62);
+  font-style: normal;
+}
+.sticker img {
+  display: block;
+  max-width: 160px;
+  max-height: 160px;
+}
+.audio {
+  display: grid;
+  gap: 7px;
+  min-width: 280px;
+}
+.audio span {
+  font-size: 12px;
+}
+.audio audio {
+  width: 100%;
+  height: 36px;
+}
+.unavailable {
+  padding: 24px;
+  min-width: 210px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--text-secondary);
+  text-align: center;
+}
+.unavailable.pending {
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.025),
+    rgba(255, 255, 255, 0.065),
+    rgba(255, 255, 255, 0.025)
+  );
+  background-size: 200% 100%;
+  animation: media-loading 1.5s linear infinite;
+}
+@keyframes media-loading {
+  to {
+    background-position: -200% 0;
+  }
+}
+.document {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 260px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.14);
+  padding: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+.document > span {
+  font-size: 26px;
+}
+.document b,
+.document small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.document b {
+  white-space: nowrap;
+}
+.document small {
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+.card {
+  display: grid;
+  gap: 7px;
+  min-width: 230px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.14);
+}
+.card small {
+  color: var(--text-secondary);
+}
+.card a {
+  color: var(--accent);
+}
+.poll span {
+  padding: 6px;
+  border-top: 1px solid var(--border);
+}
+.unsupported {
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+  padding-right: 40px;
+}
+@media (max-width: 767px) {
+  .row {
+    padding: 0 10px;
+  }
+  .bubble {
+    max-width: 86%;
+  }
+  .media img {
+    width: min(300px, 72vw);
+  }
+}

@@ -1,0 +1,77 @@
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.conversation {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-chat);
+}
+header {
+  flex: 0 0 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 16px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  --avatar-size: 40px;
+}
+header div {
+  min-width: 0;
+  flex: 1;
+}
+h2 {
+  font-size: 15px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+p {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 4px 0 0;
+}
+header button {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 20px;
+}
+footer {
+  flex: 0 0 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+.new-messages {
+  position: absolute;
+  z-index: 4;
+  right: 24px;
+  bottom: 48px;
+  border: 0;
+  border-radius: 18px;
+  padding: 9px 14px;
+  background: var(--accent);
+  color: #06251d;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}

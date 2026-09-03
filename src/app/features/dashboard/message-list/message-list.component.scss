@@ -1,0 +1,65 @@
+:host {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+.message-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 15px 0 24px;
+  background-color: var(--bg-chat);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 22px 22px;
+  overflow-anchor: auto;
+}
+.day,
+.history-start,
+.older {
+  display: block;
+  width: max-content;
+  margin: 8px auto;
+  padding: 5px 11px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(17, 31, 28, 0.9);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 11px;
+}
+.older {
+  cursor: pointer;
+  color: var(--accent);
+}
+.empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.loading {
+  display: grid;
+  gap: 9px;
+  padding: 20px 6%;
+}
+.loading i {
+  display: block;
+  width: 42%;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--skeleton);
+  animation: pulse 1.4s infinite;
+}
+.loading i.right {
+  justify-self: end;
+  width: 36%;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}

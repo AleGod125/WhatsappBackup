@@ -1,0 +1,101 @@
+@if (system()) {
+  <div
+    class="system"
+    [class.notice]="
+      message().type === 'encryption_notice' ||
+      message().type === 'system' ||
+      message().type === 'unknown_system'
+    "
+  >
+    <span>{{ systemLabel() }}</span
+    ><time>{{ message().timestamp | date: 'HH:mm' }}</time>
+  </div>
+} @else {
+  <article class="row" [class.mine]="message().fromMe" [class.grouped]="grouped()">
+    <div class="bubble">
+      @if (message().reply) {
+        <blockquote>
+          <b>{{ message().reply?.senderName || 'Mensaje' }}</b
+          ><span>{{ message().reply?.text || 'Contenido multimedia' }}</span>
+        </blockquote>
+      }
+      @switch (message().type) {
+        @case ('text') {
+          <p class="text"><app-safe-text [text]="message().text || ''" /></p>
+        }
+        @case ('image') {
+          <app-message-media
+            [media]="media()"
+            [messageType]="message().type"
+            (openMedia)="openMedia.emit($event)"
+            (layoutChanged)="mediaLayoutChanged.emit()"
+          />
+        }
+        @case ('sticker') {
+          <app-message-media
+            [media]="media()"
+            [messageType]="message().type"
+            (openMedia)="openMedia.emit($event)"
+            (layoutChanged)="mediaLayoutChanged.emit()"
+          />
+        }
+        @case ('video') {
+          <app-message-media
+            [media]="media()"
+            [messageType]="message().type"
+            (openMedia)="openMedia.emit($event)"
+            (layoutChanged)="mediaLayoutChanged.emit()"
+          />
+        }
+        @case ('audio') {
+          <app-message-media
+            [media]="media()"
+            [messageType]="message().type"
+            (openMedia)="openMedia.emit($event)"
+            (layoutChanged)="mediaLayoutChanged.emit()"
+          />
+        }
+        @case ('voice_note') {
+          <app-message-media
+            [media]="media()"
+            [messageType]="message().type"
+            (openMedia)="openMedia.emit($event)"
+            (layoutChanged)="mediaLayoutChanged.emit()"
+          />
+        }
+        @case ('document') {
+          <app-message-media
+            [media]="media()"
+            [messageType]="message().type"
+            (openMedia)="openMedia.emit($event)"
+            (layoutChanged)="mediaLayoutChanged.emit()"
+          />
+        }
+        @case ('location') {
+          <div class="card">
+            <b>📍 Ubicación</b>
+            @if (message().latitude !== undefined) {
+              <small>{{ message().latitude }}, {{ message().longitude }}</small
+              ><a [href]="mapUrl()" target="_blank" rel="noopener noreferrer">Abrir mapa</a>
+            }
+          </div>
+        }
+        @case ('poll') {
+          <div class="card poll">
+            <b>📊 {{ message().pollQuestion || 'Encuesta' }}</b>
+            @for (option of message().pollOptions || []; track option) {
+              <span>{{ option }}</span>
+            }
+          </div>
+        }
+        @default {
+          <p class="unsupported">Mensaje no compatible</p>
+        }
+      }
+      @if (message().text && message().type !== 'text' && message().type !== 'poll') {
+        <p class="caption">{{ message().text }}</p>
+      }
+      <time>{{ message().timestamp | date: 'HH:mm' }}</time>
+    </div>
+  </article>
+}

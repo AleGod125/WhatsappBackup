@@ -1,0 +1,67 @@
+@if (status() === 'downloaded' && !renderFailed()) {
+  @switch (kind()) {
+    @case ('image') {
+      <button class="visual" type="button" (click)="open()">
+        <img
+          [src]="media()?.fileUrl || media()?.thumbnailUrl"
+          [attr.width]="media()?.width"
+          [attr.height]="media()?.height"
+          alt="Imagen adjunta"
+          loading="lazy"
+          (load)="onLoad()"
+          (error)="onError()"
+        />
+      </button>
+    }
+    @case ('sticker') {
+      <button class="visual sticker" type="button" (click)="open()">
+        <img
+          [src]="media()?.fileUrl || media()?.thumbnailUrl"
+          alt="Sticker"
+          loading="lazy"
+          (load)="onLoad()"
+          (error)="onError()"
+        />
+      </button>
+    }
+    @case ('video') {
+      <video
+        controls
+        preload="metadata"
+        [src]="media()?.fileUrl"
+        (loadedmetadata)="onLoad()"
+        (error)="onError()"
+      ></video>
+    }
+    @case ('audio') {
+      <div class="audio">
+        <span>🎤 Nota de voz</span
+        ><audio
+          controls
+          preload="metadata"
+          [src]="media()?.fileUrl"
+          (loadedmetadata)="onLoad()"
+          (error)="onError()"
+        ></audio>
+      </div>
+    }
+    @case ('document') {
+      <button class="document" type="button" (click)="open()">
+        <span>📄</span>
+        <div>
+          <b>{{ media()?.filename || 'Documento' }}</b
+          ><small>{{ media()?.mimeType }} · {{ media()?.size | fileSize }}</small>
+        </div>
+      </button>
+    }
+  }
+} @else {
+  <div class="media-state" [class.pending]="status() === 'pending' || status() === 'downloading'">
+    <span>{{ stateLabel() }}</span>
+    @if (canRetry()) {
+      <button type="button" (click)="retry()" [disabled]="retrying()">
+        {{ status() === 'failed' || renderFailed() ? 'Reintentar' : 'Intentar descargar' }}
+      </button>
+    }
+  </div>
+}

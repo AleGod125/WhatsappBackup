@@ -1,0 +1,63 @@
+<section class="conversation">
+  <header>
+    <app-avatar
+      [name]="chat().displayName"
+      [id]="chat().id"
+      [src]="chat().avatarUrl"
+      [initialsOverride]="chat().avatar?.initials"
+      [color]="chat().avatar?.color"
+    />
+    <div>
+      <h2>{{ chat().displayName }}</h2>
+      <p>
+        @if (chat().messageCount) {
+          <span>{{ chat().messageCount }} mensajes</span>
+        }
+        @if (chat().historyStatus === 'waiting_seed') {
+          <span> · Este chat todavía no tiene un punto de recuperación.</span>
+        } @else if (chat().historyStatus === 'fetching') {
+          <span> · Recuperando historial…</span>
+        } @else if (chat().historyStatus === 'timeout') {
+          <span> · No se pudo recuperar todavía</span>
+        } @else if (chat().firstMessageAt) {
+          <span> · desde {{ chat().firstMessageAt | date: 'd MMM y' }}</span>
+        } @else {
+          <span> · Historial sincronizado</span>
+        }
+      </p>
+      @if (chat().historyStatus === 'waiting_seed' || chat().historyStatus === 'timeout') {
+        <button
+          class="history-retry"
+          type="button"
+          (click)="retryHistory()"
+          [disabled]="historyRetrying()"
+        >
+          Intentar recuperar historial
+        </button>
+      }
+    </div>
+    <button aria-label="Buscar en la conversación" disabled>⌕</button
+    ><button aria-label="Más opciones" disabled>•••</button>
+  </header>
+  <app-message-list
+    [messages]="messages()"
+    [loading]="loading()"
+    [loadingOlder]="loadingOlder()"
+    [hasMore]="hasMore()"
+    (loadOlder)="loadOlder()"
+    (mediaOpen)="viewer.set($event)"
+  />
+  @if (newMessages()) {
+    <button class="new-messages" (click)="showNewest()">
+      {{ newMessages() }} {{ newMessages() === 1 ? 'mensaje nuevo' : 'mensajes nuevos' }} ↓
+    </button>
+  }
+  <footer><span>🔒</span> Copia de consulta · envío de mensajes desactivado</footer>
+</section>
+@if (viewer(); as selected) {
+  <app-media-viewer
+    [media]="selected.media"
+    [type]="selected.type"
+    (close)="viewer.set(undefined)"
+  />
+}

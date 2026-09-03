@@ -1,0 +1,57 @@
+<aside class="sidebar">
+  <header>
+    <div>
+      <h1>WhatsApp Backup</h1>
+    </div>
+    <button aria-label="Más opciones">•••</button>
+  </header>
+  <div class="search">
+    <span>⌕</span
+    ><input
+      aria-label="Buscar un chat"
+      placeholder="Buscar un chat"
+      [ngModel]="query()"
+      (ngModelChange)="updateSearch($event)"
+    />
+  </div>
+  <div class="filters">
+    <button class="active">Todos</button><button disabled>No leídos</button
+    ><button disabled>Favoritos</button><button disabled>Grupos</button>
+  </div>
+  @if (loading()) {
+    <div class="skeletons">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div><i></i><span></span></div>
+      }
+    </div>
+  } @else if (!filtered().length) {
+    <div class="no-results">No se encontraron conversaciones</div>
+  } @else {
+    <cdk-virtual-scroll-viewport itemSize="72" class="chat-list">
+      <button
+        *cdkVirtualFor="let chat of filtered(); trackBy: trackById"
+        class="chat"
+        [class.selected]="chat.id === selectedId()"
+        (click)="select(chat)"
+      >
+        <app-avatar
+          [name]="chat.displayName"
+          [id]="chat.id"
+          [src]="chat.avatarUrl"
+          [initialsOverride]="chat.avatar?.initials"
+          [color]="chat.avatar?.color"
+        /><span class="content"
+          ><span class="top"
+            ><strong>{{ chat.displayName }}</strong
+            ><time>{{ chat.lastMessageAt | date: 'HH:mm' }}</time></span
+          ><span class="bottom"
+            ><span>{{ preview(chat) }}</span>
+            @if (chat.unreadCount) {
+              <b>{{ chat.unreadCount }}</b>
+            }
+          </span></span
+        >
+      </button></cdk-virtual-scroll-viewport
+    >
+  }
+</aside>
