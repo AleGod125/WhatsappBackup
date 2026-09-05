@@ -87,10 +87,10 @@ import { Media, MessageType } from '../../../core/models/api.models';
         width: 34px;
         height: 34px;
         border-radius: 8px;
-        font-size: 20px;
+        font-size: var(--font-size-xl);
       }
       .zoom span {
-        font-size: 12px;
+        font-size: var(--font-size-sm);
       }
       .content {
         max-width: 90vw;

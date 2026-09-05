@@ -70,7 +70,7 @@ describe('API adapters', () => {
         filename: 'voice.ogg',
         size: 42,
         duration: 9,
-        fileUrl: 'http://127.0.0.1:5000/api/v1/media/562/file',
+        fileUrl: 'http://localhost:5000/api/v1/media/562/file',
       }),
     );
   });

@@ -10,7 +10,9 @@
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
-  padding: 15px 0 24px;
+  /* Con la densidad: compacta aprieta, amplia da aire. Antes solo cambiaba
+     la lista de conversaciones y el cuerpo de mensajes se quedaba igual. */
+  padding: var(--space-4) 0 var(--space-6);
   background-color: var(--bg-chat);
   background-image: radial-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px);
   background-size: 22px 22px;
@@ -22,13 +24,13 @@
   display: block;
   width: max-content;
   margin: 8px auto;
-  padding: 5px 11px;
+  padding: var(--space-1) var(--space-3);
   border: 0;
   border-radius: 10px;
   background: rgba(17, 31, 28, 0.9);
   color: var(--text-secondary);
   font: inherit;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 .older {
   cursor: pointer;
@@ -39,7 +41,7 @@
   place-items: center;
   height: 100%;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 .pending-history {
   align-content: center;
@@ -49,7 +51,7 @@
 }
 .pending-history strong {
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: var(--font-size-base);
 }
 .pending-history span {
   max-width: 480px;
@@ -58,7 +60,7 @@
 .loading {
   display: grid;
   gap: 9px;
-  padding: 20px 6%;
+  padding: var(--space-5, var(--space-4)) 6%;
 }
 .loading i {
   display: block;
@@ -76,4 +78,28 @@
   50% {
     opacity: 0.5;
   }
+}
+
+/* Un vacío con forma: sin mensajes NO es un error, y una línea de texto
+   suelta en medio de la pantalla se lee como si algo hubiera fallado. */
+.empty.pending-history {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 32px 20px;
+}
+.empty .icono {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  font-size: var(--font-size-xl);
+  opacity: 0.8;
+}
+.empty.sin-mensajes {
+  opacity: 0.9;
 }

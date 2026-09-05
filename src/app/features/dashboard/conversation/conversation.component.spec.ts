@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import { Message } from '../../../core/models/api.models';
 import { MessageService } from '../../../core/services/message.service';
 import { SyncService } from '../../../core/services/sync.service';
-import { WebBootstrapService } from '../../../core/services/web-bootstrap.service';
+import { HistoryRecheckService } from '../../../core/services/history-recheck.service';
 import { ConversationComponent } from './conversation.component';
 
 const message = (id: string): Message => ({
@@ -14,6 +14,17 @@ const message = (id: string): Message => ({
   fromMe: false,
   media: { id: `media-${id}`, status: 'pending' },
 });
+
+const TRABAJO_VACIO = {
+  jobId: 'test',
+  state: 'completed' as const,
+  total: 0,
+  processed: 0,
+  recovered: 0,
+  stillWaiting: 0,
+  errors: 0,
+  messagesRecovered: 0,
+};
 
 describe('ConversationComponent realtime updates', () => {
   beforeEach(() =>
@@ -26,8 +37,8 @@ describe('ConversationComponent realtime updates', () => {
         },
         { provide: SyncService, useValue: { run: () => of({}) } },
         {
-          provide: WebBootstrapService,
-          useValue: { recoverChat: () => of({ state: 'starting', qrRequired: false }) },
+          provide: HistoryRecheckService,
+          useValue: { recheckChat: () => of(TRABAJO_VACIO) },
         },
       ],
     }),
@@ -64,13 +75,21 @@ describe('ConversationComponent realtime updates', () => {
     const fixture = create();
     fixture.componentInstance.messages.set([]);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain(
-      'todavía no tiene un punto de recuperación',
-    );
-    expect(fixture.nativeElement.textContent).toContain(
-      'El historial de esta conversación aún no se ha recuperado.',
-    );
-    expect(fixture.nativeElement.textContent).toContain('Intentar recuperar historial');
+    // El texto exacto vive en `chat-estado`; lo que esta prueba fija es que
+    // un chat sin referencia NO se presenta como sincronizado.
+    const texto = fixture.nativeElement.textContent;
+    expect(texto).toContain('Esperando referencia');
+    expect(texto).not.toContain('Historial sincronizado');
+    // Y sigue ofreciendo reintentar: pendiente no es un final.
+    // Se comprueba que el botón ESTÁ, no cómo se dice: el texto depende del
+    // idioma, y fijarlo aquí ataría la prueba al castellano.
+    expect(fixture.nativeElement.querySelector('.history-retry')).toBeTruthy();
+    // El centro explica POR QUÉ está vacío, no repite la etiqueta corta de
+    // la cabecera: son dos sitios con espacio distinto.
+    expect(texto).toContain('Esperando una referencia para recuperar este chat');
+    // Se comprueba que el botón ESTÁ, no cómo se dice: el texto depende del
+    // idioma, y fijarlo aquí ataría la prueba al castellano.
+    expect(fixture.nativeElement.querySelector('.history-retry')).toBeTruthy();
     expect(fixture.nativeElement.textContent).not.toContain('Historial sincronizado');
   });
 });

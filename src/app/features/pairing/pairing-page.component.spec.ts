@@ -3,15 +3,26 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { RealtimeService } from '../../core/events/realtime.service';
-import { RealtimeEnvelope } from '../../core/models/api.models';
+import { OnboardingStatus, RealtimeEnvelope } from '../../core/models/api.models';
+import { AuthService } from '../../core/services/auth.service';
 import { SessionService } from '../../core/services/session.service';
 import { PairingPageComponent } from './pairing-page.component';
+
+/** Lo que responde el backend cuando toca vincular. */
+const TOCA_VINCULAR: OnboardingStatus = {
+  authenticated: true,
+  googleConnected: true,
+  driveAuthorized: true,
+  whatsappLinked: false,
+  nextStep: 'pairing',
+};
 
 function setup(
   options: {
     sessionState?: string;
     connected?: boolean;
     qr?: Array<{ available: boolean; generation?: number; expiresInSeconds?: number }>;
+    onboarding?: OnboardingStatus;
   } = {},
 ) {
   const events = new Subject<RealtimeEnvelope>();
@@ -29,14 +40,18 @@ function setup(
     pair: vi.fn(() => of({ state: 'PAIRING', connected: false })),
     qrImageUrl: vi.fn(
       (generation: number) =>
-        `http://127.0.0.1:5000/api/v1/session/qr/image?generation=${generation}&size=560`,
+        `http://localhost:5000/api/v1/session/qr/image?generation=${generation}&size=560`,
     ),
   };
+  // La pantalla pregunta primero si de verdad toca vincular: recargarla con
+  // la cuenta ya vinculada no puede arrancar otra sesión.
+  const auth = { onboarding: vi.fn(() => of(options.onboarding ?? TOCA_VINCULAR)) };
   const router = { navigateByUrl: vi.fn() };
   TestBed.configureTestingModule({
     imports: [PairingPageComponent],
     providers: [
       { provide: SessionService, useValue: session },
+      { provide: AuthService, useValue: auth },
       { provide: RealtimeService, useValue: { connect: vi.fn(), events$: events } },
       { provide: Router, useValue: router },
       {
@@ -48,7 +63,7 @@ function setup(
   const fixture: ComponentFixture<PairingPageComponent> =
     TestBed.createComponent(PairingPageComponent);
   fixture.detectChanges();
-  return { fixture, component: fixture.componentInstance, session, events, router };
+  return { fixture, component: fixture.componentInstance, session, events, router, auth };
 }
 
 describe('PairingPageComponent REST bootstrap', () => {
@@ -75,16 +90,23 @@ describe('PairingPageComponent REST bootstrap', () => {
     fixture.destroy();
   });
 
-  it('uses rescue polling when SSE never arrives', () => {
+  it('el sondeo rescata el QR si el SSE no llega', () => {
+    // Al pedir la vinculación el backend responde 202 y el código tarda un
+    // instante en existir. Si el SSE se pierde, el sondeo lo recoge igual.
     vi.useFakeTimers();
     const { component, session, fixture } = setup({
       sessionState: 'PAIRING',
-      qr: [{ available: false }, { available: true, generation: 8, expiresInSeconds: 200 }],
+      qr: [
+        { available: false }, // al entrar
+        { available: false }, // justo tras pedir la vinculación
+        { available: true, generation: 8, expiresInSeconds: 200 }, // sondeo
+      ],
     });
     expect(component.qrUrl()).toBeUndefined();
+
     vi.advanceTimersByTime(4000);
-    expect(session.qr).toHaveBeenCalledTimes(2);
     expect(component.generation()).toBe(8);
+    expect(component.viewState()).toBe('qr_ready');
     fixture.destroy();
     vi.useRealTimers();
   });
@@ -119,24 +141,44 @@ describe('PairingPageComponent REST bootstrap', () => {
     vi.useRealTimers();
   });
 
-  it('POSTs pair and then reads QR metadata on retry', () => {
+  it('pide la vinculación al backend: ya no se genera sola', () => {
+    // El backend dejó de crear un QR al arrancar. Una vinculación sin dueño
+    // acaba en manos del primero que pase, así que ahora hay que pedirla y el
+    // servidor la asocia al usuario de la cookie.
     const { component, session, fixture } = setup({
       sessionState: 'PAIRING',
       qr: [{ available: false }, { available: true, generation: 9, expiresInSeconds: 200 }],
     });
-    component.retryPairing();
+    // Una al entrar (no había QR) y otra al pulsar "reintentar".
     expect(session.pair).toHaveBeenCalledTimes(1);
-    expect(session.qr).toHaveBeenCalledTimes(2);
+
+    component.retryPairing();
+    expect(session.pair).toHaveBeenCalledTimes(2);
     expect(component.generation()).toBe(9);
     fixture.destroy();
   });
 
-  it('redirects when the initial session is already connected', () => {
+  it('con la sesión ya conectada, confirma con el backend y sale', () => {
+    // No se navega solo porque el socket diga CONNECTED: se pregunta a
+    // /onboarding/status. La cuenta puede no constar vinculada todavía, y
+    // entrar al panel un instante antes muestra un panel vacío.
     vi.useFakeTimers();
-    const { session, router, fixture } = setup({ sessionState: 'CONNECTED', connected: true });
+    const { session, router, auth, fixture } = setup({
+      sessionState: 'CONNECTED',
+      connected: true,
+      onboarding: {
+        authenticated: true,
+        googleConnected: true,
+        driveAuthorized: true,
+        whatsappLinked: true,
+        nextStep: 'dashboard',
+      },
+    });
     expect(session.qr).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(750);
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard', { replaceUrl: true });
+
+    vi.advanceTimersByTime(400);
+    expect(auth.onboarding).toHaveBeenCalled();
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard');
     fixture.destroy();
     vi.useRealTimers();
   });

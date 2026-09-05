@@ -8,6 +8,11 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
+    /* Los catalogos de idioma se importan como modulos: van en el
+       paquete, asi cambiar de idioma es instantaneo y no depende de
+       que una peticion de red conteste. */
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "experimentalDecorators": true,
     "importHelpers": true,

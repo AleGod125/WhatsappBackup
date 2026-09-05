@@ -2,12 +2,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   input,
   output,
   viewChild,
 } from '@angular/core';
-import { ChatHistoryStatus, Media, Message } from '../../../core/models/api.models';
+import { Chat, ChatHistoryStatus, Media, Message } from '../../../core/models/api.models';
 import { MessageBubbleComponent } from '../message-bubble/message-bubble.component';
+
+import { estadoDeChat } from '../chat-estado';
 
 @Component({
   selector: 'app-message-list',
@@ -22,6 +25,42 @@ export class MessageListComponent {
   loadingOlder = input(false);
   hasMore = input(false);
   historyStatus = input<ChatHistoryStatus>();
+  /** El chat entero: hace falta el número de mensajes para distinguir
+   * "sin nada que recuperar" de "todavía no se ha recuperado". */
+  chat = input<Chat | undefined>(undefined);
+  waitingForPhone = input(false);
+
+  /**
+   * Qué poner cuando no hay ni un mensaje.
+   *
+   * El caso importante es `exhausted` con cero mensajes: WhatsApp entregó
+   * todo lo que tenía y resultó ser nada. Eso NO es un error y no se pinta
+   * como tal — pero tampoco puede decir "sincronizado" sobre una pantalla
+   * vacía, porque el usuario asume que algo falló.
+   */
+  readonly vacio = computed(() => {
+    const chat = this.chat();
+    if (!chat) {
+      return { estado: 'PENDING' as const, icono: '⋯', titulo: 'Cargando…', detalle: '' };
+    }
+    const presentacion = estadoDeChat(chat, this.waitingForPhone());
+    const iconos: Record<string, string> = {
+      SYNCED: '✓',
+      RECOVERING: '⟳',
+      PENDING: '⋯',
+      WAITING_SEED: '◷',
+      RETRY_PENDING: '↻',
+      WAITING_FOR_PHONE: '▢',
+      NO_MESSAGES_AVAILABLE: '◌',
+      ERROR: '!',
+    };
+    return {
+      estado: presentacion.estado,
+      icono: iconos[presentacion.estado] ?? '◌',
+      titulo: presentacion.etiqueta,
+      detalle: presentacion.detalle === presentacion.etiqueta ? '' : presentacion.detalle,
+    };
+  });
   loadOlder = output<void>();
   mediaOpen = output<{ media: Media; type: Message['type'] }>();
   private readonly scroller = viewChild.required<ElementRef<HTMLElement>>('scroller');

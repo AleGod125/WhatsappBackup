@@ -38,7 +38,7 @@ video {
   min-width: 280px;
 }
 .audio span {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 audio {
   width: 100%;
@@ -101,7 +101,7 @@ audio {
 .document small {
   margin-top: 3px;
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
 }
 @keyframes loading {
   to {

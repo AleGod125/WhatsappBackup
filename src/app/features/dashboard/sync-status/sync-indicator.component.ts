@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { SyncStatus } from '../../../core/models/api.models';
+import { RecheckJob, SyncStatus } from '../../../core/models/api.models';
 @Component({
   selector: 'app-sync-indicator',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,9 +21,13 @@ import { SyncStatus } from '../../../core/models/api.models';
       } @else if (status()?.backfillTotal) {
         <small>{{ status()?.backfillCurrent }}/{{ status()?.backfillTotal }}</small>
       }
-      @if (status()?.waitingSeed; as waiting) {
+      @if (recheckRunning()) {
+        <small class="checking">Revisando historiales pendientes…</small>
+      } @else if (status()?.waitingSeed; as waiting) {
         <small class="warning"
-          >Sincronización finalizada con {{ waiting }} conversaciones pendientes</small
+          >{{ waiting }}
+          {{ waiting === 1 ? 'conversación pendiente' : 'conversaciones pendientes' }} de una
+          referencia de WhatsApp</small
         >
       }
     </div>
@@ -31,13 +35,13 @@ import { SyncStatus } from '../../../core/models/api.models';
       <details>
         <summary>Resumen</summary>
         <span>Sincronizados: {{ status()?.synced ?? 0 }}</span>
-        <span>Pendientes de historial: {{ status()?.waitingSeed ?? 0 }}</span>
-        <span>Pendientes de recuperación: {{ status()?.pending ?? 0 }}</span>
+        <span>Pendientes de referencia: {{ status()?.waitingSeed ?? 0 }}</span>
+        <span>En cola de recuperación: {{ status()?.pending ?? 0 }}</span>
         <span>Timeouts: {{ status()?.timeouts ?? 0 }}</span>
         <span>Errores: {{ status()?.errors ?? 0 }}</span>
         @if ((status()?.waitingSeed ?? 0) > 0) {
-          <button type="button" (click)="recoverPending.emit()">
-            Recuperar historiales pendientes
+          <button type="button" (click)="recheckPending.emit()">
+            Revisar historiales pendientes
           </button>
         }
       </details>
@@ -70,7 +74,7 @@ import { SyncStatus } from '../../../core/models/api.models';
       .sync strong,
       .sync small {
         display: block;
-        font-size: 12px;
+        font-size: var(--font-size-sm);
       }
       .sync strong {
         color: var(--text-primary);
@@ -83,9 +87,12 @@ import { SyncStatus } from '../../../core/models/api.models';
         color: #d9ae70;
         white-space: normal;
       }
+      .checking {
+        color: var(--accent);
+      }
       details {
         position: relative;
-        font-size: 11px;
+        font-size: var(--font-size-xs);
       }
       summary {
         cursor: pointer;
@@ -120,7 +127,13 @@ export class SyncIndicatorComponent {
   status = input<SyncStatus>();
   disconnected = input(false);
   reconnecting = input(false);
-  recoverPending = output<void>();
+  recheck = input<RecheckJob>();
+  recheckPending = output<void>();
+  /** La revision de fondo esta en marcha (no una que se omitio por la espera). */
+  recheckRunning() {
+    const job = this.recheck();
+    return !!job && !job.skipped && (job.state === 'starting' || job.state === 'running');
+  }
   hasRecoverySummary() {
     const value = this.status();
     return [value?.synced, value?.waitingSeed, value?.timeouts, value?.errors, value?.pending].some(

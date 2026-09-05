@@ -14,12 +14,12 @@ describe('SessionService API', () => {
     let result: { available: boolean; imageUrl?: string } | undefined;
     service.qr().subscribe((value) => (result = value));
     TestBed.inject(HttpTestingController)
-      .expectOne('http://127.0.0.1:5000/api/v1/session/qr')
+      .expectOne('http://localhost:5000/api/v1/session/qr')
       .flush({ available: true, image_url: '/api/v1/session/qr/image' });
     expect(result?.available).toBe(true);
   });
   it('uses the QR generation in the image URL', () =>
     expect(TestBed.inject(SessionService).qrImageUrl(12)).toBe(
-      'http://127.0.0.1:5000/api/v1/session/qr/image?generation=12&size=560',
+      'http://localhost:5000/api/v1/session/qr/image?generation=12&size=560',
     ));
 });

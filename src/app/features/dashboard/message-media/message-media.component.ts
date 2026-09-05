@@ -1,6 +1,10 @@
+import { AudioPlayerComponent } from '../../../shared/components/audio-player.component';
+import { DocumentCardComponent } from '../../../shared/components/document-card.component';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   effect,
   inject,
@@ -8,6 +12,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Media, Message } from '../../../core/models/api.models';
 import { MediaService } from '../../../core/services/media.service';
 import { FileSizePipe } from '../../../shared/pipes/file-size.pipe';
@@ -15,19 +20,39 @@ import { safeHttpUrl } from '../../../shared/utils/display';
 
 @Component({
   selector: 'app-message-media',
-  imports: [FileSizePipe],
+  imports: [FileSizePipe,
+    AudioPlayerComponent,
+    DocumentCardComponent,
+    TranslatePipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './message-media.component.html',
   styleUrl: './message-media.component.scss',
 })
 export class MessageMediaComponent {
   private readonly mediaApi = inject(MediaService);
+  private readonly destroyRef = inject(DestroyRef);
   media = input<Media>();
   messageType = input.required<Message['type']>();
   openMedia = output<{ media: Media; type: Message['type'] }>();
   layoutChanged = output<void>();
   readonly retrying = signal(false);
   readonly renderFailed = signal(false);
+  /**
+   * El estado del backend, traducido al que entienden las tarjetas.
+   *
+   * `404` es «no disponible» y `410` es «caducado», y son cosas distintas:
+   * una puede volver y la otra no. Mezclarlas dejaría al usuario sin saber si
+   * merece la pena reintentar.
+   */
+  readonly estadoDeMedia = computed(() => {
+    const estado = this.status();
+    if (estado === 'expired') return 'expired' as const;
+    if (['failed', 'unavailable', 'missing'].includes(estado)) return 'unavailable' as const;
+    if (['pending', 'downloading'].includes(estado)) return 'loading' as const;
+    return 'ready' as const;
+  });
+
   readonly status = computed(() =>
     this.retrying() ? 'downloading' : (this.media()?.status ?? 'missing'),
   );
@@ -52,12 +77,18 @@ export class MessageMediaComponent {
     if (!media?.id || this.retrying()) return;
     this.retrying.set(true);
     this.renderFailed.set(false);
-    this.mediaApi.retry(media.id).subscribe({
-      error: () => {
-        this.retrying.set(false);
-        this.renderFailed.set(true);
-      },
-    });
+    // Al cambiar de chat el componente muere, pero la descarga sigue en el
+    // backend: sin esto la suscripción quedaría viva escribiendo señales de un
+    // componente ya destruido.
+    this.mediaApi
+      .retry(media.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
+          this.retrying.set(false);
+          this.renderFailed.set(true);
+        },
+      });
   }
   open(): void {
     const media = this.media();

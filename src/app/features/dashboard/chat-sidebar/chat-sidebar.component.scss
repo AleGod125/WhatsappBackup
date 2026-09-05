@@ -17,7 +17,7 @@ header {
   padding: 0 18px;
 }
 h1 {
-  font-size: 17px;
+  font-size: var(--font-size-lg);
   margin: 2px 0;
 }
 .eyebrow {
@@ -30,7 +30,7 @@ header button {
   border: 0;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 18px;
+  font-size: var(--font-size-lg);
 }
 .search {
   display: flex;
@@ -57,7 +57,7 @@ header button {
   background: transparent;
   color: var(--text-primary);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 .filters {
   display: flex;
@@ -72,7 +72,7 @@ header button {
   padding: 6px 11px;
   border-radius: 18px;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 .filters button.active {
   color: var(--accent);
@@ -118,19 +118,19 @@ header button {
   gap: 8px;
 }
 .top strong {
-  font-size: 15px;
+  font-size: var(--font-size-base);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .top time {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
 .bottom {
   margin-top: 5px;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 .bottom > span {
   white-space: nowrap;
@@ -146,7 +146,7 @@ header button {
   border-radius: 9px;
   background: var(--accent);
   color: #06251d;
-  font-size: 10px;
+  font-size: var(--font-size-xs);
 }
 .bottom em {
   flex: 0 0 auto;
@@ -161,7 +161,7 @@ header button {
   padding: 45px 20px;
   text-align: center;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 .skeletons {
   padding: 4px 13px;
@@ -189,4 +189,32 @@ header button {
   50% {
     opacity: 0.45;
   }
+}
+
+.load-error {
+  padding: 20px 16px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+  text-align: center;
+}
+.load-error button {
+  margin-top: 10px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+/* Mientras la metadata sigue llegando, el nombre es provisional. Se marca
+   para que no se lea como un dato definitivo: decir "Contacto sin nombre" de
+   algo que va a tener nombre en veinte segundos hace que el usuario lo dé por
+   perdido. */
+strong.provisional {
+  color: var(--color-text-muted);
+  font-style: italic;
+  font-weight: var(--font-weight-normal);
 }

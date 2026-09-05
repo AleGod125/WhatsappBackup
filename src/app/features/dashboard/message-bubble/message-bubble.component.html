@@ -22,6 +22,11 @@
       @switch (message().type) {
         @case ('text') {
           <p class="text"><app-safe-text [text]="message().text || ''" /></p>
+          <!-- Los enlaces del mensaje, como tarjeta. El texto se deja tal
+               cual: es lo que la persona escribió, y no se toca. -->
+          @for (enlace of enlaces(); track enlace) {
+            <app-link-card [url]="enlace" />
+          }
         }
         @case ('image') {
           <app-message-media

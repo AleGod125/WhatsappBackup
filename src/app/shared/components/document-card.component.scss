@@ -1,0 +1,119 @@
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
+  max-width: 100%;
+}
+
+.icono {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  color: var(--color-text-muted);
+}
+.icono app-icon {
+  width: 30px;
+  height: 30px;
+}
+/* La extensión, encima del icono: es lo que de verdad identifica el archivo
+   de un vistazo, más que el propio icono. */
+.icono b {
+  position: absolute;
+  bottom: 2px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: var(--color-text-muted);
+  color: var(--color-surface);
+  font-size: 8px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  max-width: 30px;
+  overflow: hidden;
+}
+
+/* El color por familia. Son los que la gente ya asocia a cada tipo. */
+[data-tipo='pdf'] .icono,
+[data-tipo='pdf'] b {
+  color: #d94f43;
+}
+[data-tipo='pdf'] b {
+  background: #d94f43;
+  color: #fff;
+}
+[data-tipo='texto'] .icono,
+[data-tipo='texto'] b {
+  color: #3f7fd4;
+}
+[data-tipo='texto'] b {
+  background: #3f7fd4;
+  color: #fff;
+}
+[data-tipo='hoja'] .icono,
+[data-tipo='hoja'] b {
+  color: #2f9e63;
+}
+[data-tipo='hoja'] b {
+  background: #2f9e63;
+  color: #fff;
+}
+[data-tipo='diapositivas'] .icono,
+[data-tipo='diapositivas'] b {
+  color: #d98026;
+}
+[data-tipo='diapositivas'] b {
+  background: #d98026;
+  color: #fff;
+}
+[data-tipo='comprimido'] .icono,
+[data-tipo='comprimido'] b {
+  color: #8b6fd4;
+}
+[data-tipo='comprimido'] b {
+  background: #8b6fd4;
+  color: #fff;
+}
+
+.cuerpo {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.cuerpo strong {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cuerpo small {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.accion {
+  flex: none;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  text-decoration: none;
+}
+.accion:hover {
+  background: var(--color-hover);
+}
+
+.estado {
+  flex: none;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

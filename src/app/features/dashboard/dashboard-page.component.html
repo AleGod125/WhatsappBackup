@@ -1,31 +1,77 @@
-<main class="dashboard">
+<main class="dashboard" [class.viendo-chat]="!!selected()">
   <app-left-rail
     [syncRunning]="syncRunning()"
     [syncDisabled]="syncDisabled()"
     [syncTooltip]="syncTooltip()"
+    [advancedOpen]="advancedOpen()"
+    [settingsOpen]="settingsOpen()"
     (syncRequested)="runSync()"
+    (advancedToggled)="advancedOpen.set(!advancedOpen())"
+    (settingsToggled)="settingsOpen.set(!settingsOpen())"
   />
   <section class="sidebar-column">
     <app-chat-sidebar
       [chats]="chats()"
       [selectedId]="selected()?.id"
       [loading]="loading()"
+      [error]="error()"
+      [waitingForPhone]="waitingForPhone()"
+      (retry)="reloadChats()"
       (chatSelected)="select($event)"
-    /><app-sync-indicator
+    />
+    <!-- Discreto a propósito: sólo importa cuando NO está en vivo, y ahí
+         explica por qué la lista podría no estar moviéndose. -->
+    @if (realtime() !== 'LIVE') {
+      <p class="canal" [class.caido]="realtime() === 'OFFLINE'">
+        <span></span>
+        {{
+          realtime() === 'RECONNECTING'
+            ? 'Reconectando…'
+            : 'Sin conexión en tiempo real'
+        }}
+      </p>
+    }
+    <!-- UNA sola fuente visual de estado. Antes había cuatro bloques
+         contando lo mismo y entre todos se comían medio panel. -->
+    <app-recovery-status [recuento]="recuento()" />
+    <!-- El paso 2 de la puesta en marcha, y el progreso mientras dura.
+         Desaparece solo cuando ya no hay nada que contar. -->
+    <app-onboarding-panel />
+    <!-- Compacto a propósito: lo que hace falta a diario y nada más. Todo lo
+         demás vive en «Avanzado», que en móvil no roba sitio a la lista. -->
+    <app-sync-panel
       [status]="sync()"
-      [disconnected]="disconnected()"
-      [reconnecting]="reconnecting()"
-      (recoverPending)="recoverPendingHistories()"
+      [running]="syncRunning()"
+      [disabled]="syncDisabled()"
+      [tooltip]="syncTooltip()"
+      [waitingForPhone]="waitingForPhone()"
+      [pendingChats]="chatsPendientes()"
+      (sync)="runSync()"
+      (fullRecovery)="runFullRecovery()"
     />
   </section>
   <section class="main-panel">
-    @if (disconnected()) {
+    <!-- Dos avisos, no uno. El de antes servía para las dos cosas y el
+         usuario no podía saber si esperaba o si tenía que hacer algo. -->
+    @if (needsRelink()) {
+      <div class="connection-banner relink">
+        <span>Necesitas volver a vincular WhatsApp para continuar.</span>
+        <button type="button" (click)="irAVincular()">Vincular WhatsApp</button>
+      </div>
+    } @else if (disconnected()) {
       <div class="connection-banner">
-        Conexión con WhatsApp perdida. El historial visible permanece disponible.
+        Conexión temporalmente perdida. Estamos volviendo a conectar; el historial visible
+        permanece disponible.
       </div>
     }
     @if (selected(); as chat) {
-      <app-conversation [chat]="chat" />
+      <!-- En móvil la conversación ocupa la pantalla entera, así que tiene que
+           haber una forma de volver. En escritorio la lista sigue ahí y este
+           botón sobra: se oculta por CSS. -->
+      <button class="volver" type="button" aria-label="Volver a la lista" (click)="deselect()">
+        ‹ Chats
+      </button>
+      <app-conversation [chat]="chat" [waitingForPhone]="waitingForPhone()" />
     } @else {
       <div class="empty-state">
         <div class="illustration"><span>◫</span><i></i><b></b></div>
@@ -39,12 +85,53 @@
     <div class="toast" role="status">{{ toast() }}</div>
   }
 </main>
-@if (globalRecoveryOpen()) {
-  <app-history-recovery-panel
-    [initialState]="globalRecoveryState()"
-    [initialError]="globalRecoveryError()"
-    [initialQrRequired]="globalRecoveryQrRequired()"
-    (close)="globalRecoveryOpen.set(false)"
-    (completed)="recoveryCompleted()"
+
+<!-- Recuperación avanzada. Un cajón, no una columna: en la vista principal
+     estos paneles empujaban la lista de chats hasta dejarla en media
+     pantalla, y son cosas que se miran de vez en cuando. -->
+@if (advancedOpen()) {
+  <div class="velo-avanzado" (click)="advancedOpen.set(false)">
+    <aside
+      class="cajon"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Recuperación avanzada"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <h2>Recuperación avanzada</h2>
+        <button type="button" aria-label="Cerrar" (click)="advancedOpen.set(false)">✕</button>
+      </header>
+      <div class="contenido">
+        <app-sync-indicator
+          [status]="sync()"
+          [recheck]="recheckAuto()"
+          [disconnected]="disconnected()"
+          [reconnecting]="reconnecting()"
+          (recheckPending)="recheckPendingHistories()"
+        />
+        <app-storage-panel />
+        <!-- Sin conexión principal el segundo dispositivo no se enseña ni
+             en avanzado: su código sería el que no toca escanear. -->
+        @if (webCompanionEnabled() && !needsRelink()) {
+          <app-web-companion-panel />
+        }
+      </div>
+    </aside>
+  </div>
+}
+
+@if (recheckOpen()) {
+  <app-history-recheck-panel
+    [job]="recheckJob()"
+    [initialError]="recheckError()"
+    (close)="recheckOpen.set(false)"
+    (completed)="recheckCompleted()"
   />
+}
+
+<!-- La configuración del producto. Encima de todo, pero sin cortar lo de
+     detrás: casi todo lo de dentro se decide mirando la aplicación. -->
+@if (settingsOpen()) {
+  <app-settings-panel (cerrar)="settingsOpen.set(false)" />
 }

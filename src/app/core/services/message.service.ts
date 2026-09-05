@@ -52,6 +52,7 @@ export function normalizeMessage(value: unknown): Message {
     type: system
       ? systemType(system)
       : normalizeType(r['type'] ?? r['message_type'] ?? r['system_event']),
+    preview: optionalString(r['preview']),
     text: optionalString(r['text'] ?? r['content'] ?? r['body'] ?? system?.['label']),
     timestamp: String(
       r['sent_at'] ?? r['created_at'] ?? r['timestamp'] ?? new Date(0).toISOString(),
@@ -93,11 +94,18 @@ export function normalizeMedia(r: Record<string, unknown>): Media {
     height: optionalNumber(r['height']),
   };
 }
+// Los tipos que el backend puede emitir. Lo que no este aqui cae a
+// 'unknown', asi que una ausencia no da error: da una etiqueta peor.
+// `contact` faltaba, y son mensajes reales.
 const known = new Set<MessageType>([
   'text',
   'image',
   'video',
   'audio',
+  'gif',
+  'contact',
+  'reaction',
+  'call',
   'voice_note',
   'document',
   'sticker',

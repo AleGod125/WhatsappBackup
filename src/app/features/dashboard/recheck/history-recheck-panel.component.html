@@ -1,0 +1,69 @@
+<div class="backdrop" (click)="close.emit()">
+  <section
+    class="panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="recheck-title"
+    (click)="$event.stopPropagation()"
+  >
+    <header>
+      <div>
+        <span>HISTORIALES PENDIENTES</span>
+        <h2 id="recheck-title">{{ title() }}</h2>
+      </div>
+      <button type="button" aria-label="Cerrar" (click)="close.emit()">×</button>
+    </header>
+
+    <div class="progress">
+      <strong>{{ label() }}</strong>
+      @if (current(); as job) {
+        @if (job.state === 'running' || job.state === 'starting') {
+          <div class="bar" role="progressbar" [attr.aria-valuenow]="percent()">
+            <i [style.width.%]="percent()"></i>
+          </div>
+          <small>{{ job.processed }} de {{ job.total }}</small>
+        }
+      }
+    </div>
+
+    @if (done() && current(); as job) {
+      <ul class="tally">
+        <li class="ok">
+          <b>{{ job.recovered }}</b
+          ><span>con referencia nueva</span>
+        </li>
+        <li class="waiting">
+          <b>{{ job.stillWaiting }}</b
+          ><span>siguen pendientes</span>
+        </li>
+        @if (job.errors) {
+          <li class="bad">
+            <b>{{ job.errors }}</b
+            ><span>con error</span>
+          </li>
+        }
+      </ul>
+
+      @if (job.recovered) {
+        <p class="note ok">
+          Se está descargando el historial de
+          {{ job.recovered === 1 ? 'esa conversación' : 'esas conversaciones' }}. Los mensajes
+          aparecerán solos.
+        </p>
+      }
+      @if (job.stillWaiting) {
+        <p class="note">
+          WhatsApp todavía no ha proporcionado una referencia válida para recuperar mensajes
+          anteriores de
+          {{ job.stillWaiting === 1 ? 'esa conversación' : 'esas conversaciones' }}. No están
+          vacías, y despiertan solas en cuanto llegue un mensaje real. Puedes volver a comprobarlo
+          más tarde.
+        </p>
+      }
+    }
+
+    @if (error()) {
+      <p class="note bad">{{ error() }}</p>
+    }
+  </section>
+</div>

@@ -4,26 +4,29 @@ import {
   DestroyRef,
   OnChanges,
   SimpleChanges,
+  computed,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
-import {
-  Chat,
-  Media,
-  Message,
-  MessageCursor,
-  WebBootstrapState,
-} from '../../../core/models/api.models';
+import { Chat, Media, Message, MessageCursor, RecheckJob } from '../../../core/models/api.models';
 import { MessageService } from '../../../core/services/message.service';
 import { AvatarComponent } from '../../../shared/components/avatar.component';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MediaViewerComponent } from '../media/media-viewer.component';
-import { HistoryRecoveryPanelComponent } from '../recovery/history-recovery-panel.component';
-import { WebBootstrapService } from '../../../core/services/web-bootstrap.service';
+import { ChatMenuComponent } from './chat-menu.component';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { I18nService } from '../../../core/i18n/i18n.service';
+import { PreferencesService } from '../../../core/services/preferences.service';
+import { nombreVisible } from '../../../shared/utils/nombre-visible';
+import { HistoryRecheckPanelComponent } from '../recheck/history-recheck-panel.component';
+import { HistoryRecheckService } from '../../../core/services/history-recheck.service';
+
+import { estadoDeChat } from '../chat-estado';
 
 @Component({
   selector: 'app-conversation',
@@ -32,17 +35,41 @@ import { WebBootstrapService } from '../../../core/services/web-bootstrap.servic
     AvatarComponent,
     MessageListComponent,
     MediaViewerComponent,
-    HistoryRecoveryPanelComponent,
+    HistoryRecheckPanelComponent,
+    ChatMenuComponent,
+    TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './conversation.component.html',
   styleUrl: './conversation.component.scss',
 })
 export class ConversationComponent implements OnChanges {
+  private readonly prefs = inject(PreferencesService);
+  private readonly i18n = inject(I18nService);
+
+  /**
+   * El nombre que se enseña: alias del usuario, nombre resuelto, o un texto
+   * de espera mientras la metadata sigue llegando.
+   */
+  readonly nombre = computed(() =>
+    nombreVisible(this.chat(), this.prefs.alias(this.chat().id), this.i18n.t()),
+  );
+
+  /** Aviso discreto tras renombrar. Lo recoge el tablero. */
+  readonly aliasGuardado = output<void>();
+  avisarDeGuardado(): void {
+    this.aliasGuardado.emit();
+  }
+
+  /** El estado de este chat, decidido en `chat-estado` y no aquí. */
+  readonly estado = computed(() => estadoDeChat(this.chat(), this.waitingForPhone()));
+  /** Lo dice la cola de recuperación, no el chat. */
+  waitingForPhone = input(false);
+
   chat = input.required<Chat>();
   private readonly messagesApi = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly recoveryApi = inject(WebBootstrapService);
+  private readonly recheckApi = inject(HistoryRecheckService);
   private readonly list = viewChild(MessageListComponent);
   readonly messages = signal<Message[]>([]);
   readonly loading = signal(true);
@@ -50,10 +77,9 @@ export class ConversationComponent implements OnChanges {
   readonly hasMore = signal(false);
   readonly newMessages = signal(0);
   readonly viewer = signal<{ media: Media; type: Message['type'] } | undefined>(undefined);
-  readonly recoveryOpen = signal(false);
-  readonly recoveryState = signal<WebBootstrapState>('starting');
-  readonly recoveryError = signal<string | undefined>(undefined);
-  readonly recoveryQrRequired = signal(false);
+  readonly recheckOpen = signal(false);
+  readonly recheckJob = signal<RecheckJob | undefined>(undefined);
+  readonly recheckError = signal<string | undefined>(undefined);
   private cursor?: MessageCursor;
   private loadToken = 0;
   ngOnChanges(changes: SimpleChanges) {
@@ -109,26 +135,28 @@ export class ConversationComponent implements OnChanges {
     this.newMessages.set(0);
     this.list()?.scrollToBottom(true);
   }
-  recoverHistory() {
+  /**
+   * Vuelve a comprobar si esta conversacion ya tiene una referencia.
+   *
+   * Solo mira lo local: alias del contacto y datos que WhatsApp ya entrego.
+   * Si aparece una referencia, el historial se descarga solo; si no, el chat
+   * sigue pendiente, que es reintentable y no un fallo.
+   */
+  recheckHistory() {
     const chatId = Number(this.chat().id);
     if (!Number.isInteger(chatId)) return;
-    this.recoveryOpen.set(true);
-    this.recoveryState.set('starting');
-    this.recoveryError.set(undefined);
-    this.recoveryQrRequired.set(false);
-    this.recoveryApi
-      .recoverChat(chatId)
+    this.recheckOpen.set(true);
+    this.recheckJob.set(undefined);
+    this.recheckError.set(undefined);
+    this.recheckApi
+      .recheckChat(chatId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (result) => {
-          this.recoveryState.set(result.state);
-          this.recoveryQrRequired.set(result.qrRequired);
-          this.recoveryError.set(result.message);
+        next: (job) => {
+          this.recheckJob.set(job);
+          if (job.recovered) this.reload();
         },
-        error: (error: { message: string }) => {
-          this.recoveryState.set('failed');
-          this.recoveryError.set(error.message);
-        },
+        error: (error: { message: string }) => this.recheckError.set(error.message),
       });
   }
   reload() {

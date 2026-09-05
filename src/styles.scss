@@ -1,24 +1,247 @@
+/* ===========================================================================
+   El sistema de diseño.
+   ===========================================================================
+
+   UNA SOLA FUENTE PARA CADA DECISIÓN VISUAL
+   -----------------------------------------
+   Antes cada componente traía sus propios colores, así que cambiar el tema
+   significaba tocar treinta archivos y acordarse de todos. Aquí los
+   componentes piden `var(--…)` y no saben de qué tema vienen.
+
+   CÓMO SE CAMBIA DE TEMA
+   ----------------------
+   Un atributo en `<html>`: `data-theme="dark" | "light" | "amoled" |
+   "midnight" | "custom"`. Sin atributo se sigue al sistema
+   (`prefers-color-scheme`). El tema personalizado sobreescribe los tokens uno
+   a uno desde TypeScript, así que no hace falta una hoja por combinación.
+
+   ESCALA, DENSIDAD Y FUENTE
+   -------------------------
+   También son tokens (`--font-scale`, `--density`, `--font-family`). Cambiar
+   uno no vuelve a pintar la aplicación: el navegador recalcula lo que depende
+   de él y ya está.
+   =========================================================================== */
+
 :root {
-  color-scheme: dark;
-  --bg-app: #0b1211;
-  --bg-rail: #101716;
-  --bg-sidebar: #121b19;
-  --bg-panel: #182321;
-  --bg-chat: #0d1715;
-  --bg-input: #202c29;
-  --bg-hover: #1b2926;
-  --bg-selected: #263632;
-  --bubble-out: #145342;
-  --bubble-in: #202c29;
-  --text-primary: #ecf3f1;
-  --text-secondary: #98aaa6;
-  --text-muted: #687975;
-  --accent: #49c899;
-  --border: rgba(211, 236, 228, 0.09);
-  --skeleton: #23312e;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  /* -- Tipografía -------------------------------------------------------- */
+  --font-family: 'Segoe UI', system-ui, sans-serif;
+  /* Multiplica cada tamaño. 1 = 100%. */
+  --font-scale: 1;
+  --font-size-base: calc(14px * var(--font-scale));
+  --font-size-sm: calc(12px * var(--font-scale));
+  --font-size-xs: calc(11px * var(--font-scale));
+  --font-size-lg: calc(16px * var(--font-scale));
+  --font-size-xl: calc(20px * var(--font-scale));
+  --line-height: 1.5;
+  --font-weight-normal: 400;
+  --font-weight-medium: 550;
+  --font-weight-bold: 650;
+
+  /* -- Espaciado --------------------------------------------------------- */
+  /* La densidad multiplica la unidad: compacta 0.75, cómoda 1, amplia 1.3. */
+  --density: 1;
+  --spacing-unit: calc(4px * var(--density));
+  --space-1: var(--spacing-unit);
+  --space-2: calc(var(--spacing-unit) * 2);
+  --space-3: calc(var(--spacing-unit) * 3);
+  --space-4: calc(var(--spacing-unit) * 4);
+  --space-6: calc(var(--spacing-unit) * 6);
+  --space-8: calc(var(--spacing-unit) * 8);
+
+  /* -- Formas ------------------------------------------------------------ */
+  --radius-sm: 6px;
+  --radius-md: 9px;
+  --radius-lg: 12px;
+  --radius-xl: 18px;
+
+  /* -- Movimiento -------------------------------------------------------- */
+  /* Una sola duración para que todo se mueva igual. Accesibilidad la pone a
+     cero y con eso desaparecen TODAS las animaciones a la vez. */
+  --motion-fast: 120ms;
+  --motion-normal: 220ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0.2, 1);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.35);
+
   font-synthesis: none;
 }
+
+/* ---------------------------------------------------------------------------
+   Los temas.
+
+   Los nombres son de ROL, no de color: `--color-surface`, no `--verde-oscuro`.
+   Por eso el mismo componente sirve en claro y en oscuro sin una sola regla
+   condicional.
+   --------------------------------------------------------------------------- */
+
+@mixin tema-oscuro {
+  color-scheme: dark;
+  --color-primary: #49c899;
+  --color-primary-contrast: #06251d;
+  --color-accent: #49c899;
+  --color-background: #0b1211;
+  --color-surface: #121b19;
+  --color-surface-elevated: #182321;
+  --color-surface-sunken: #0d1715;
+  --color-input: #202c29;
+  --color-hover: #1b2926;
+  --color-selected: #263632;
+  --color-text: #ecf3f1;
+  --color-text-secondary: #98aaa6;
+  --color-text-muted: #687975;
+  --color-border: rgba(211, 236, 228, 0.09);
+  --color-success: #49c899;
+  --color-warning: #d9a441;
+  --color-danger: #e0685c;
+  --chat-outgoing-bg: #145342;
+  --chat-incoming-bg: #202c29;
+  --color-skeleton: #23312e;
+  --color-scroll: #3a4a46;
+}
+
+@mixin tema-claro {
+  color-scheme: light;
+  --color-primary: #128c5f;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #128c5f;
+  --color-background: #f3f5f4;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-sunken: #eaeeec;
+  --color-input: #eef1f0;
+  --color-hover: #e8edeb;
+  --color-selected: #dcebe4;
+  --color-text: #12201c;
+  --color-text-secondary: #4d605b;
+  --color-text-muted: #74847f;
+  --color-border: rgba(18, 32, 28, 0.12);
+  --color-success: #128c5f;
+  --color-warning: #a8721a;
+  --color-danger: #c04034;
+  --chat-outgoing-bg: #d3f2e2;
+  --chat-incoming-bg: #ffffff;
+  --color-skeleton: #e3e8e6;
+  --color-scroll: #c2ccc9;
+  --shadow-sm: 0 1px 3px rgba(18, 32, 28, 0.08);
+  --shadow-md: 0 4px 14px rgba(18, 32, 28, 0.1);
+  --shadow-lg: 0 8px 28px rgba(18, 32, 28, 0.14);
+}
+
+/* AMOLED: negro de verdad. En una pantalla OLED un píxel negro está apagado,
+   así que esto no es estética, es batería. */
+@mixin tema-amoled {
+  color-scheme: dark;
+  --color-primary: #4ee0a8;
+  --color-primary-contrast: #000000;
+  --color-accent: #4ee0a8;
+  --color-background: #000000;
+  --color-surface: #000000;
+  --color-surface-elevated: #0a0f0e;
+  --color-surface-sunken: #000000;
+  --color-input: #131a18;
+  --color-hover: #0f1614;
+  --color-selected: #16211e;
+  --color-text: #f2f7f5;
+  --color-text-secondary: #9aa8a4;
+  --color-text-muted: #6b7873;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-success: #4ee0a8;
+  --color-warning: #e0b155;
+  --color-danger: #ef7367;
+  --chat-outgoing-bg: #0e3b30;
+  --chat-incoming-bg: #131a18;
+  --color-skeleton: #131a18;
+  --color-scroll: #2a3532;
+}
+
+/* Midnight: azules fríos, para trabajar de noche sin el verde. */
+@mixin tema-midnight {
+  color-scheme: dark;
+  --color-primary: #6aa9ff;
+  --color-primary-contrast: #04142b;
+  --color-accent: #6aa9ff;
+  --color-background: #0a0f1a;
+  --color-surface: #101828;
+  --color-surface-elevated: #162033;
+  --color-surface-sunken: #0c1320;
+  --color-input: #1b2536;
+  --color-hover: #182234;
+  --color-selected: #223047;
+  --color-text: #e8eef8;
+  --color-text-secondary: #97a5bd;
+  --color-text-muted: #6a7891;
+  --color-border: rgba(200, 220, 255, 0.1);
+  --color-success: #52c98f;
+  --color-warning: #dfa94b;
+  --color-danger: #e8695f;
+  --chat-outgoing-bg: #1d3a63;
+  --chat-incoming-bg: #1b2536;
+  --color-skeleton: #1b2536;
+  --color-scroll: #33415a;
+}
+
+:root {
+  @include tema-oscuro;
+}
+
+/* Sin elección explícita se sigue al sistema. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    @include tema-claro;
+  }
+}
+
+:root[data-theme='dark'] {
+  @include tema-oscuro;
+}
+:root[data-theme='light'] {
+  @include tema-claro;
+}
+:root[data-theme='amoled'] {
+  @include tema-amoled;
+}
+:root[data-theme='midnight'] {
+  @include tema-midnight;
+}
+/* El personalizado parte del oscuro y TypeScript sobreescribe token a token,
+   así que un color que el usuario no haya tocado sigue siendo legible. */
+:root[data-theme='custom'] {
+  @include tema-oscuro;
+}
+
+/* ---------------------------------------------------------------------------
+   Nombres anteriores.
+
+   Los componentes que ya existían piden `--bg-panel`, `--accent` y compañía.
+   Se mapean en vez de reescribir treinta archivos de golpe: así el cambio de
+   tema funciona YA en toda la aplicación, y cada componente se migra cuando le
+   toque por otro motivo.
+   --------------------------------------------------------------------------- */
+:root {
+  --bg-app: var(--color-background);
+  --bg-rail: var(--color-surface);
+  --bg-sidebar: var(--color-surface);
+  --bg-panel: var(--color-surface-elevated);
+  --bg-chat: var(--color-surface-sunken);
+  --bg-input: var(--color-input);
+  --bg-hover: var(--color-hover);
+  --bg-selected: var(--color-selected);
+  --bubble-out: var(--chat-outgoing-bg);
+  --bubble-in: var(--chat-incoming-bg);
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --accent: var(--color-primary);
+  --border: var(--color-border);
+  --skeleton: var(--color-skeleton);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+
 * {
   box-sizing: border-box;
 }
@@ -26,30 +249,69 @@ html,
 body {
   height: 100%;
   margin: 0;
-  background: var(--bg-app);
-  color: var(--text-primary);
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
 }
 body {
   overflow: hidden;
 }
 button,
-input {
+input,
+select,
+textarea {
   font-family: inherit;
 }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* Alto contraste: bordes visibles y foco que no se pierde. Es una ayuda de
+   accesibilidad, no un tema — se combina con cualquiera de los cinco. */
+:root[data-contrast='high'] {
+  --color-border: currentColor;
+  --color-text-secondary: var(--color-text);
+  --color-text-muted: var(--color-text);
+}
+:root[data-contrast='high'] :focus-visible {
+  outline-width: 3px;
+}
+
+/* Reducir movimiento. Se respeta la preferencia del sistema Y la elección
+   explícita: un ajuste de accesibilidad que sólo funciona si el sistema opina
+   lo mismo no sirve de nada. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-normal: 0ms;
+  }
+}
+:root[data-motion='reduced'] {
+  --motion-fast: 0ms;
+  --motion-normal: 0ms;
+}
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3a4a46 transparent;
+  scrollbar-color: var(--color-scroll) transparent;
 }
 ::-webkit-scrollbar {
   width: 9px;
   height: 9px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3a4a46;
+  background: var(--color-scroll);
   border: 2px solid transparent;
   background-clip: padding-box;
   border-radius: 8px;

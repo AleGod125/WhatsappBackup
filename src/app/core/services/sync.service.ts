@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiClientService } from '../api/api-client.service';
-import { SyncStatus } from '../models/api.models';
+import { SyncStatus, SyncSummary } from '../models/api.models';
 import { map } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class SyncService {
@@ -10,6 +10,21 @@ export class SyncService {
   }
   run() {
     return this.api.post<Record<string, unknown>>('/sync/run');
+  }
+
+  /**
+   * Revisa todos los chats recuperables y vuelve a intentarlo.
+   *
+   * Es el mismo ciclo con una diferencia: adelanta una vez la espera de
+   * reintento de los que la estaban cumpliendo. No borra nada.
+   */
+  fullRecovery() {
+    return this.api.post<Record<string, unknown>>('/sync/full-recovery');
+  }
+
+  /** Vuelve a pedir el historial de UN chat. No toca a los demás. */
+  retryChat(chatId: string | number) {
+    return this.api.post<Record<string, unknown>>(`/chats/${chatId}/history/retry`);
   }
 }
 export function normalizeSyncStatus(r: Record<string, unknown>): SyncStatus {
@@ -56,6 +71,30 @@ export function normalizeSyncStatus(r: Record<string, unknown>): SyncStatus {
     timeouts: numberValue(byState['timeout'] ?? r['timeouts'] ?? result['timeouts']),
     errors: numberValue(r['errors'] ?? result['errors']),
     pending: numberValue(chats['chats_pending'] ?? r['pending'] ?? result['pending']),
+    // La fase en curso, para poder decir algo mas util que "sincronizando".
+    phase: typeof r['phase'] === 'string' ? (r['phase'] as string) : undefined,
+    summary: normalizeSummary(r),
+  };
+}
+/**
+ * El resumen del ciclo, si el backend lo manda.
+ *
+ * Se devuelve `undefined` cuando no viene, para que la UI pueda distinguir
+ * "el ciclo no dijo nada" de "el ciclo dijo cero".
+ */
+function normalizeSummary(r: Record<string, unknown>): SyncSummary | undefined {
+  const s = r['summary'];
+  if (!s || typeof s !== 'object') return undefined;
+  const v = s as Record<string, unknown>;
+  return {
+    chatsTotal: numberValue(v['chats_total']),
+    withCursor: numberValue(v['with_cursor']),
+    waitingSeed: numberValue(v['waiting_seed']),
+    retried: numberValue(v['retried']),
+    retryPending: numberValue(v['retry_pending']),
+    recoveredMessages: numberValue(v['recovered_messages']),
+    newSeeds: numberValue(v['new_seeds']),
+    drivePending: numberValue(v['drive_pending']),
   };
 }
 const numberValue = (value: unknown): number | undefined =>

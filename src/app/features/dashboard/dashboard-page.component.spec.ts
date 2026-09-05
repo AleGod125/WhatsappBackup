@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
@@ -5,8 +6,19 @@ import { RealtimeService } from '../../core/events/realtime.service';
 import { ChatService } from '../../core/services/chat.service';
 import { SessionService } from '../../core/services/session.service';
 import { SyncService } from '../../core/services/sync.service';
-import { WebBootstrapService } from '../../core/services/web-bootstrap.service';
+import { HistoryRecheckService } from '../../core/services/history-recheck.service';
 import { DashboardPageComponent } from './dashboard-page.component';
+
+const TRABAJO_VACIO = {
+  jobId: 'test',
+  state: 'completed' as const,
+  total: 0,
+  processed: 0,
+  recovered: 0,
+  stillWaiting: 0,
+  errors: 0,
+  messagesRecovered: 0,
+};
 
 describe('Dashboard SSE reconnection', () => {
   it('reconciles chats through REST after EventSource reconnects', () => {
@@ -30,11 +42,11 @@ describe('Dashboard SSE reconnection', () => {
         },
         {
           provide: RealtimeService,
-          useValue: { connect: vi.fn(), connection$: connection, events$: events },
+          useValue: { connect: vi.fn(), connection$: connection, events$: events, state: signal('LIVE') },
         },
         {
-          provide: WebBootstrapService,
-          useValue: { recoverPending: () => of({ state: 'starting', qrRequired: false }) },
+          provide: HistoryRecheckService,
+          useValue: { recheckPending: () => of(TRABAJO_VACIO) },
         },
         { provide: Router, useValue: { navigate: vi.fn() } },
         {

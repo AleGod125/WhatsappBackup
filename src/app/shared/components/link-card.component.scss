@@ -1,0 +1,86 @@
+/* La tarjeta de enlace.
+   El color viene del sitio reconocido; todo lo demás sale de los tokens, así
+   que se ve bien en los cinco temas. */
+
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
+  color: inherit;
+  text-decoration: none;
+  transition: background var(--motion-fast) var(--motion-ease);
+  max-width: 100%;
+}
+.tarjeta:hover {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.marca {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-text-muted);
+  color: var(--color-primary-contrast);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+}
+
+/* Los colores de marca son literales: son de cada sitio, no del tema. */
+[data-tipo='youtube'] .marca {
+  background: #ff0033;
+  color: #fff;
+}
+[data-tipo='tiktok'] .marca {
+  background: #010101;
+  color: #25f4ee;
+}
+[data-tipo='facebook'] .marca {
+  background: #1877f2;
+  color: #fff;
+}
+[data-tipo='instagram'] .marca {
+  background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7);
+  color: #fff;
+}
+[data-tipo='x'] .marca {
+  background: #000;
+  color: #fff;
+}
+[data-tipo='github'] .marca {
+  background: #24292f;
+  color: #fff;
+}
+
+.cuerpo {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+.cuerpo strong {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cuerpo small {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flecha {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: var(--color-text-muted);
+}

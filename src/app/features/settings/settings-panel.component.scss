@@ -1,0 +1,323 @@
+/* El panel de configuración.
+   Todo sale de los tokens: no hay ni un color escrito a mano, así que este
+   panel se ve bien en los cinco temas sin una sola regla condicional. */
+
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.5);
+  animation: aparecer var(--motion-normal) var(--motion-ease);
+}
+
+.panel {
+  position: fixed;
+  z-index: 81;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  animation: entrar var(--motion-normal) var(--motion-ease);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+.estado {
+  min-width: 60px;
+  text-align: right;
+}
+.estado .ok {
+  font-size: var(--font-size-xs);
+  color: var(--color-success);
+  animation: aparecer var(--motion-fast) var(--motion-ease);
+}
+.icono {
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+.icono:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.buscador {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+.buscador input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-input);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.contenido {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-6);
+}
+
+section {
+  display: grid;
+  gap: var(--space-3);
+}
+section h3 {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.campo {
+  display: grid;
+  gap: var(--space-2);
+}
+.campo > label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.campo select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-input);
+  color: var(--color-text);
+}
+
+/* -- Temas: una muestra del color de cada uno, para elegir mirando -------- */
+.temas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-2);
+}
+.tema {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--motion-ease);
+}
+.tema:hover {
+  border-color: var(--color-primary);
+}
+.tema.activo {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+.muestra {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+}
+/* Los colores de las muestras son literales a propósito: representan CÓMO se
+   ve cada tema, así que no pueden depender del tema activo. */
+.muestra[data-tema='system'] {
+  background: linear-gradient(135deg, #ecf3f1 50%, #0b1211 50%);
+}
+.muestra[data-tema='light'] {
+  background: #f3f5f4;
+}
+.muestra[data-tema='dark'] {
+  background: #0b1211;
+}
+.muestra[data-tema='amoled'] {
+  background: #000;
+}
+.muestra[data-tema='midnight'] {
+  background: #0a0f1a;
+}
+.muestra[data-tema='custom'] {
+  background: linear-gradient(135deg, #49c899, #6aa9ff);
+}
+
+.colores {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+}
+.colores summary {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+}
+.color {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.color input[type='color'] {
+  width: 42px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+/* -- Grupos de botones exclusivos ---------------------------------------- */
+.segmentado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-input);
+}
+.segmentado button {
+  flex: 1;
+  min-width: 56px;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--motion-ease);
+}
+.segmentado button:hover {
+  background: var(--color-hover);
+}
+.segmentado button.activo {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: var(--font-weight-medium);
+}
+
+.interruptor {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.interruptor:hover {
+  background: var(--color-hover);
+}
+.interruptor input {
+  margin-top: 3px;
+  accent-color: var(--color-primary);
+}
+.interruptor span {
+  display: grid;
+  gap: 2px;
+}
+.interruptor strong {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+.interruptor small {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.vacio {
+  margin: 0;
+  padding: var(--space-6) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  gap: var(--space-2);
+}
+footer .aviso {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+footer .acciones {
+  display: flex;
+  gap: var(--space-2);
+}
+.secundario,
+.peligro {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.secundario:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+.peligro {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.peligro:hover {
+  background: var(--color-danger);
+  color: var(--color-primary-contrast);
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes entrar {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+/* En pantallas pequeñas ocupa todo: un cajón de 460 px en un móvil deja la
+   configuración medio fuera. */
+@media (max-width: 560px) {
+  .panel {
+    width: 100%;
+    border-left: 0;
+  }
+}

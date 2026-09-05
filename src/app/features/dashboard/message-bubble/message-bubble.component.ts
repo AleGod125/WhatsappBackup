@@ -1,3 +1,4 @@
+import { LinkCardComponent, enlacesDe } from '../../../shared/components/link-card.component';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Media, Message } from '../../../core/models/api.models';
@@ -6,12 +7,17 @@ import { MessageMediaComponent } from '../message-media/message-media.component'
 
 @Component({
   selector: 'app-message-bubble',
-  imports: [DatePipe, SafeTextComponent, MessageMediaComponent],
+  imports: [DatePipe, SafeTextComponent, MessageMediaComponent,
+    LinkCardComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
 })
 export class MessageBubbleComponent {
+  /** Los enlaces que hay en el texto, para pintarlos como tarjeta. */
+  readonly enlaces = computed(() => enlacesDe(this.message().text));
+
   message = input.required<Message>();
   grouped = input(false);
   openMedia = output<{ media: Media; type: Message['type'] }>();

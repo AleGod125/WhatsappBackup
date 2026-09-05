@@ -22,28 +22,18 @@
         (mediaLayoutChanged)="onMediaLayout()"
       />
     } @empty {
-      @if (historyStatus() === 'waiting_seed') {
-        <div class="empty pending-history">
-          <strong>El historial de esta conversación aún no se ha recuperado.</strong>
-          <span
-            >WhatsApp todavía no proporcionó una referencia válida para solicitar los mensajes
-            anteriores.</span
-          >
-        </div>
-      } @else if (historyStatus() === 'pending') {
-        <div class="empty pending-history">
-          <strong>Pendiente de recuperación</strong
-          ><span>La referencia ya está en cola para recuperar los mensajes anteriores.</span>
-        </div>
-      } @else if (historyStatus() === 'fetching') {
-        <div class="empty pending-history"><strong>Recuperando historial…</strong></div>
-      } @else if (historyStatus() === 'timeout') {
-        <div class="empty pending-history">
-          <strong>Reintento pendiente</strong><span>No se pudo recuperar todavía.</span>
-        </div>
-      } @else {
-        <div class="empty">Esta conversación todavía no tiene mensajes almacenados.</div>
-      }
+      <!-- El texto sale de `chat-estado`, igual que el de la cabecera. Antes
+           cada uno tenía el suyo y podían contradecirse. -->
+      <div
+        class="empty pending-history"
+        [class.sin-mensajes]="vacio().estado === 'NO_MESSAGES_AVAILABLE'"
+      >
+        <span class="icono" aria-hidden="true">{{ vacio().icono }}</span>
+        <strong>{{ vacio().titulo }}</strong>
+        @if (vacio().detalle) {
+          <span>{{ vacio().detalle }}</span>
+        }
+      </div>
     }
   }
 </div>

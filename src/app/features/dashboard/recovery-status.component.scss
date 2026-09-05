@@ -1,0 +1,147 @@
+/* El estado de la copia: pequeño a propósito.
+
+   La lista de conversaciones manda. Antes cuatro bloques contaban lo mismo y
+   entre todos se comían medio panel; aquí cabe todo en unas pocas líneas y el
+   detalle sólo aparece si se pide. */
+
+.tarjeta {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+h3 {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.punto {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: latido 1.4s ease-in-out infinite;
+}
+/* Sin trabajo en curso el punto deja de latir: un indicador que se mueve
+   siempre deja de significar «está pasando algo». */
+.punto.quieto {
+  background: var(--color-text-muted);
+  animation: none;
+}
+
+.resumen {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.barra {
+  height: 3px;
+  border-radius: 99px;
+  background: var(--color-selected);
+  overflow: hidden;
+}
+.barra i {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  transition: width var(--motion-normal) var(--motion-ease);
+}
+
+.detalle {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.detalle b {
+  display: inline-block;
+  min-width: 2ch;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+.detalle .malo b {
+  color: var(--color-danger);
+}
+
+.fino {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.icono,
+.detalles {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+}
+.icono {
+  padding: 0 var(--space-1);
+  line-height: 1;
+}
+.icono:hover,
+.detalles:hover {
+  color: var(--color-text);
+}
+.detalles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: 0;
+}
+
+/* -- Colapsado: una sola linea ------------------------------------------- */
+.minimo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  text-align: left;
+  cursor: pointer;
+}
+.minimo:hover {
+  background: var(--color-hover);
+  color: var(--color-text-secondary);
+}
+.minimo .texto {
+  flex: 1;
+}
+
+.flecha {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+.flecha.arriba {
+  transform: rotate(180deg);
+}
+
+@keyframes latido {
+  50% {
+    opacity: 0.3;
+  }
+}

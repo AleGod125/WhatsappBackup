@@ -34,25 +34,17 @@
       ></video>
     }
     @case ('audio') {
-      <div class="audio">
-        <span>🎤 Nota de voz</span
-        ><audio
-          controls
-          preload="metadata"
-          [src]="media()?.fileUrl"
-          (loadedmetadata)="onLoad()"
-          (error)="onError()"
-        ></audio>
-      </div>
+      <!-- El reproductor del producto, no el del navegador: los controles
+           nativos cambian de forma en cada navegador y no siguen el tema. -->
+      <app-audio-player [url]="media()?.fileUrl" [estado]="estadoDeMedia()" />
     }
     @case ('document') {
-      <button class="document" type="button" (click)="open()">
-        <span>📄</span>
-        <div>
-          <b>{{ media()?.filename || 'Documento' }}</b
-          ><small>{{ media()?.mimeType }} · {{ media()?.size | fileSize }}</small>
-        </div>
-      </button>
+      <app-document-card
+        [nombre]="media()?.filename || ('media.document' | t)"
+        [url]="media()?.fileUrl"
+        [bytes]="media()?.size"
+        [estado]="estadoDeMedia()"
+      />
     }
   }
 } @else {

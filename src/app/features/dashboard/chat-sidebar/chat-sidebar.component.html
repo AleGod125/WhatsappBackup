@@ -24,6 +24,13 @@
         <div><i></i><span></span></div>
       }
     </div>
+  } @else if (error()) {
+    <!-- Un fallo de red NO es "no tienes conversaciones": decir lo segundo
+         cuando pasa lo primero hace creer que se ha perdido la copia. -->
+    <div class="load-error">
+      <p>{{ error() }}</p>
+      <button type="button" (click)="retry.emit()">Reintentar</button>
+    </div>
   } @else if (!filtered().length) {
     <div class="no-results">No se encontraron conversaciones</div>
   } @else {
@@ -35,14 +42,16 @@
         (click)="select(chat)"
       >
         <app-avatar
-          [name]="chat.displayName"
+          [name]="nombreDe(chat).texto"
           [id]="chat.id"
           [src]="chat.avatarUrl"
           [initialsOverride]="chat.avatar?.initials"
           [color]="chat.avatar?.color"
         /><span class="content"
           ><span class="top"
-            ><strong>{{ chat.displayName }}</strong
+            ><strong [class.provisional]="nombreDe(chat).provisional">{{
+              nombreDe(chat).texto
+            }}</strong
             ><time>{{ chat.lastMessageAt | date: 'HH:mm' }}</time></span
           ><span class="bottom"
             ><span>{{ preview(chat) }}</span>

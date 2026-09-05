@@ -1,42 +1,37 @@
 <section class="conversation">
   <header>
     <app-avatar
-      [name]="chat().displayName"
+      [name]="nombre().texto"
       [id]="chat().id"
       [src]="chat().avatarUrl"
       [initialsOverride]="chat().avatar?.initials"
       [color]="chat().avatar?.color"
     />
     <div>
-      <h2>{{ chat().displayName }}</h2>
+      <h2 [class.provisional]="nombre().provisional">{{ nombre().texto }}</h2>
+      <!-- Un solo sitio decide el estado. Antes esta cabecera decía
+           "Historial sincronizado" mientras el centro decía que no se había
+           recuperado nada: la misma conversación, dos frases opuestas. -->
       <p>
         @if (chat().messageCount) {
           <span>{{ chat().messageCount }} mensajes</span>
+          @if (chat().firstMessageAt) {
+            <span> · desde {{ chat().firstMessageAt | date: 'd MMM y' }}</span>
+          }
         }
-        @if (chat().historyStatus === 'waiting_seed') {
-          <span> · Este chat todavía no tiene un punto de recuperación.</span>
-        } @else if (chat().historyStatus === 'fetching') {
-          <span> · Recuperando historial…</span>
-        } @else if (chat().historyStatus === 'timeout') {
-          <span> · No se pudo recuperar todavía</span>
-        } @else if (chat().firstMessageAt) {
-          <span> · desde {{ chat().firstMessageAt | date: 'd MMM y' }}</span>
-        } @else {
-          <span> · Historial sincronizado</span>
+        @if (estado().estado !== 'SYNCED' || !chat().messageCount) {
+          <!-- La versión corta: es una línea de cabecera. La explicación
+               larga va en el centro, donde hay sitio para leerla. -->
+          <span>{{ chat().messageCount ? ' · ' : '' }}{{ estado().etiqueta }}</span>
         }
       </p>
-      @if (
-        chat().waitingSeed ||
-        chat().historyStatus === 'waiting_seed' ||
-        chat().historyStatus === 'timeout'
-      ) {
-        <button class="history-retry" type="button" (click)="recoverHistory()">
-          Intentar recuperar historial
+      @if (estado().reintentable) {
+        <button class="history-retry" type="button" (click)="recheckHistory()">
+          {{ 'chat.recheck' | t }}
         </button>
       }
     </div>
-    <button aria-label="Buscar en la conversación" disabled>⌕</button
-    ><button aria-label="Más opciones" disabled>•••</button>
+    <app-chat-menu [chat]="chat()" (guardado)="avisarDeGuardado()" />
   </header>
   <app-message-list
     [messages]="messages()"
@@ -44,6 +39,8 @@
     [loadingOlder]="loadingOlder()"
     [hasMore]="hasMore()"
     [historyStatus]="chat().historyStatus"
+    [chat]="chat()"
+    [waitingForPhone]="waitingForPhone()"
     (loadOlder)="loadOlder()"
     (mediaOpen)="viewer.set($event)"
   />
@@ -61,13 +58,12 @@
     (close)="viewer.set(undefined)"
   />
 }
-@if (recoveryOpen()) {
-  <app-history-recovery-panel
+@if (recheckOpen()) {
+  <app-history-recheck-panel
     [chat]="chat()"
-    [initialState]="recoveryState()"
-    [initialError]="recoveryError()"
-    [initialQrRequired]="recoveryQrRequired()"
-    (close)="recoveryOpen.set(false)"
+    [job]="recheckJob()"
+    [initialError]="recheckError()"
+    (close)="recheckOpen.set(false)"
     (completed)="reload()"
   />
 }
