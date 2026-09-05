@@ -29,8 +29,7 @@ import { StoragePanelComponent } from './storage/storage-panel.component';
 import { WebCompanionPanelComponent } from './web-companion/web-companion-panel.component';
 import { WebCompanionService } from '../../core/services/web-companion.service';
 import { SyncIndicatorComponent } from './sync-status/sync-indicator.component';
-import { SyncPanelComponent } from './sync-status/sync-panel.component';
-import { OnboardingPanelComponent } from './onboarding/onboarding-panel.component';
+import { ProgressToolbarComponent } from './progress-toolbar.component';
 import { claveDeEstado } from './chat-estado';
 import { SessionService } from '../../core/services/session.service';
 import { previewFor } from '../../shared/utils/display';
@@ -41,7 +40,6 @@ import {
 import { HistoryRecheckPanelComponent } from './recheck/history-recheck-panel.component';
 import { resumenDeSync } from './sync-resumen';
 import { contar, quedaTrabajo } from './recuento';
-import { RecoveryStatusComponent } from './recovery-status.component';
 import { SettingsPanelComponent } from '../settings/settings-panel.component';
 import { PreferencesService } from '../../core/services/preferences.service';
 
@@ -54,10 +52,8 @@ import { PreferencesService } from '../../core/services/preferences.service';
     StoragePanelComponent,
     WebCompanionPanelComponent,
     SyncIndicatorComponent,
-    SyncPanelComponent,
-    OnboardingPanelComponent,
+    ProgressToolbarComponent,
     HistoryRecheckPanelComponent,
-    RecoveryStatusComponent,
     SettingsPanelComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -115,6 +111,8 @@ export class DashboardPageComponent implements OnInit {
   readonly advancedOpen = signal(false);
   /** La configuración del producto: idioma, tema, tipografía. */
   readonly settingsOpen = signal(false);
+  /** Con qué sección abrirla. Vacío = por el principio. */
+  readonly seccionDeAjustes = signal<string>('');
   private readonly preferencias = inject(PreferencesService);
   /**
    * El teléfono dejó de responder y la recuperación está en pausa.
@@ -138,6 +136,16 @@ export class DashboardPageComponent implements OnInit {
         this.recuento().esperandoReferencia +
         this.recuento().error
       : 0,
+  );
+  /**
+   * Cuántos mensajes hay guardados ya.
+   *
+   * Se suma de las conversaciones, que es el único sitio donde el dato existe
+   * de verdad. Va como CIFRA y nunca como porcentaje: el total que llegará a
+   * haber no se sabe hasta haberlo traído.
+   */
+  readonly mensajesGuardados = computed(() =>
+    this.chats().reduce((suma, chat) => suma + (chat.messageCount ?? 0), 0),
   );
   private autoRecheckLanzado = false;
   readonly syncRunning = computed(() => this.syncBusy() || isSyncRunning(this.sync()));
@@ -199,6 +207,18 @@ export class DashboardPageComponent implements OnInit {
       });
   }
   /** El botón normal: busca novedades y completa lo que se pueda. */
+  /**
+   * El detalle vive en los ajustes, no en la barra lateral.
+   *
+   * Pulsar la barra de progreso abre la sección de sincronización y
+   * recuperación ya desplegada, en vez de expandir un bloque dentro de la
+   * lista: la lista es lo que el usuario ha venido a ver.
+   */
+  abrirRecuperacion() {
+    this.seccionDeAjustes.set('recovery');
+    this.settingsOpen.set(true);
+  }
+
   runSync() {
     this.lanzarSync(false);
   }

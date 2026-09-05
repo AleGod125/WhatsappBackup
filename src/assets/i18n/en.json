@@ -44,7 +44,14 @@
     "fullRecovery": "Recover full history",
     "details": "Details",
     "hide": "Hide",
-    "background": "Recovering in the background"
+    "background": "Recovering in the background",
+    "stateDone": "All up to date",
+    "stateRecovering": "Recovering history…",
+    "stateRetrying": "Retrying…",
+    "statePreparing": "Preparing conversations…",
+    "stateErrors": "Some could not be recovered",
+    "openDetail": "See sync details",
+    "messages": "messages stored"
   },
   "chatStatus": {
     "SYNCED": "Synced",
@@ -72,7 +79,8 @@
     "account": "Account",
     "resetSection": "Reset this section",
     "resetAll": "Reset everything",
-    "resetConfirm": "Settings go back to their defaults. No conversation or message is deleted."
+    "resetConfirm": "Settings go back to their defaults. No conversation or message is deleted.",
+    "recovery": "Sync and recovery"
   },
   "theme": {
     "title": "Theme",
@@ -179,5 +187,19 @@
     "openLink": "Open link",
     "speedLabel": "Playback speed",
     "openInNewTab": "Opens in a new tab"
+  },
+  "advanced": {
+    "title": "Advanced recovery",
+    "optional": "Optional",
+    "explain": "When linking, WhatsApp does not hand over a reference for every conversation, and without one its earlier messages cannot be requested. A second linked device does see them.",
+    "pending": "{{n}} conversations do not yet have a good enough reference to recover their history.",
+    "link": "Link a second device",
+    "steps": "On your phone: WhatsApp › Linked devices › Link a device.",
+    "qrAlt": "QR code to link the second device",
+    "waitingQr": "Preparing the code…",
+    "active": "Advanced recovery is active.",
+    "disable": "Turn off advanced recovery",
+    "disableHint": "This stops the process. The device stays linked and you will not have to scan anything again.",
+    "notNeeded": "Not needed: all your conversations already have what they need to recover their history."
   }
 }

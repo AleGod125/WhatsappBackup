@@ -44,7 +44,14 @@
     "fullRecovery": "Gesamten Verlauf holen",
     "details": "Details",
     "hide": "Ausblenden",
-    "background": "Wiederherstellung im Hintergrund"
+    "background": "Wiederherstellung im Hintergrund",
+    "stateDone": "Alles aktuell",
+    "stateRecovering": "Verlauf wird geholt…",
+    "stateRetrying": "Neuer Versuch…",
+    "statePreparing": "Unterhaltungen werden vorbereitet…",
+    "stateErrors": "Einige konnten nicht geholt werden",
+    "openDetail": "Details zur Synchronisierung ansehen",
+    "messages": "gespeicherte Nachrichten"
   },
   "chatStatus": {
     "SYNCED": "Synchronisiert",
@@ -72,7 +79,8 @@
     "account": "Konto",
     "resetSection": "Diesen Bereich zurücksetzen",
     "resetAll": "Alles zurücksetzen",
-    "resetConfirm": "Die Einstellungen gehen auf die Standardwerte zurück. Es wird kein Chat und keine Nachricht gelöscht."
+    "resetConfirm": "Die Einstellungen gehen auf die Standardwerte zurück. Es wird kein Chat und keine Nachricht gelöscht.",
+    "recovery": "Synchronisierung und Wiederherstellung"
   },
   "theme": {
     "title": "Design",
@@ -179,5 +187,19 @@
     "openLink": "Link öffnen",
     "speedLabel": "Wiedergabegeschwindigkeit",
     "openInNewTab": "Öffnet in einem neuen Tab"
+  },
+  "advanced": {
+    "title": "Erweiterte Wiederherstellung",
+    "optional": "Optional",
+    "explain": "Beim Verknüpfen liefert WhatsApp nicht zu jeder Unterhaltung eine Referenz, und ohne sie lässt sich der frühere Verlauf nicht anfordern. Ein zweites verknüpftes Gerät sieht sie.",
+    "pending": "{{n}} Unterhaltungen haben noch keine ausreichende Referenz, um ihren Verlauf zu holen.",
+    "link": "Zweites Gerät verknüpfen",
+    "steps": "Auf deinem Telefon: WhatsApp › Verknüpfte Geräte › Gerät verknüpfen.",
+    "qrAlt": "QR-Code zum Verknüpfen des zweiten Geräts",
+    "waitingQr": "Code wird vorbereitet…",
+    "active": "Erweiterte Wiederherstellung ist aktiv.",
+    "disable": "Erweiterte Wiederherstellung ausschalten",
+    "disableHint": "Das stoppt den Vorgang. Das Gerät bleibt verknüpft, du musst nichts erneut scannen.",
+    "notNeeded": "Nicht nötig: Alle Unterhaltungen haben bereits, was sie zum Holen ihres Verlaufs brauchen."
   }
 }

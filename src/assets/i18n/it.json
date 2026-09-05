@@ -44,7 +44,14 @@
     "fullRecovery": "Recupera tutta la cronologia",
     "details": "Dettagli",
     "hide": "Nascondi",
-    "background": "Recupero in secondo piano"
+    "background": "Recupero in secondo piano",
+    "stateDone": "Tutto aggiornato",
+    "stateRecovering": "Recupero della cronologia…",
+    "stateRetrying": "Nuovo tentativo…",
+    "statePreparing": "Preparazione delle conversazioni…",
+    "stateErrors": "Alcune non si sono potute recuperare",
+    "openDetail": "Vedi il dettaglio della sincronizzazione",
+    "messages": "messaggi salvati"
   },
   "chatStatus": {
     "SYNCED": "Sincronizzata",
@@ -72,7 +79,8 @@
     "account": "Account",
     "resetSection": "Ripristina questa sezione",
     "resetAll": "Ripristina tutto",
-    "resetConfirm": "Le impostazioni tornano ai valori predefiniti. Non viene eliminata nessuna conversazione né messaggio."
+    "resetConfirm": "Le impostazioni tornano ai valori predefiniti. Non viene eliminata nessuna conversazione né messaggio.",
+    "recovery": "Sincronizzazione e recupero"
   },
   "theme": {
     "title": "Tema",
@@ -179,5 +187,19 @@
     "openLink": "Apri link",
     "speedLabel": "Velocità di riproduzione",
     "openInNewTab": "Si apre in una nuova scheda"
+  },
+  "advanced": {
+    "title": "Recupero avanzato",
+    "optional": "Facoltativo",
+    "explain": "Al collegamento WhatsApp non fornisce un riferimento per ogni conversazione e, senza, non se ne può chiedere la cronologia. Un secondo dispositivo collegato invece li vede.",
+    "pending": "{{n}} conversazioni non hanno ancora un riferimento sufficiente per recuperare la loro cronologia.",
+    "link": "Collega un secondo dispositivo",
+    "steps": "Sul telefono: WhatsApp › Dispositivi collegati › Collega un dispositivo.",
+    "qrAlt": "Codice QR per collegare il secondo dispositivo",
+    "waitingQr": "Preparazione del codice…",
+    "active": "Recupero avanzato attivo.",
+    "disable": "Disattiva il recupero avanzato",
+    "disableHint": "Ferma il processo. Il dispositivo resta collegato e non dovrai scansionare di nuovo.",
+    "notNeeded": "Non serve: tutte le conversazioni hanno già quello che serve per recuperare la cronologia."
   }
 }

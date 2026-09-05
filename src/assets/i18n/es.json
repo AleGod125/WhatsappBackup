@@ -44,7 +44,14 @@
     "fullRecovery": "Recuperar historial completo",
     "details": "Detalles",
     "hide": "Ocultar",
-    "background": "Recuperación en segundo plano"
+    "background": "Recuperación en segundo plano",
+    "stateDone": "Todo al día",
+    "stateRecovering": "Recuperando historial…",
+    "stateRetrying": "Reintentando…",
+    "statePreparing": "Preparando conversaciones…",
+    "stateErrors": "Algunas no se pudieron recuperar",
+    "openDetail": "Ver el detalle de la sincronización",
+    "messages": "mensajes guardados"
   },
   "chatStatus": {
     "SYNCED": "Sincronizado",
@@ -72,7 +79,8 @@
     "account": "Cuenta",
     "resetSection": "Restaurar esta sección",
     "resetAll": "Restaurar todo",
-    "resetConfirm": "Se volverá a los valores predeterminados. No se borra ninguna conversación ni ningún mensaje."
+    "resetConfirm": "Se volverá a los valores predeterminados. No se borra ninguna conversación ni ningún mensaje.",
+    "recovery": "Sincronización y recuperación"
   },
   "theme": {
     "title": "Tema",
@@ -179,5 +187,19 @@
     "openLink": "Abrir enlace",
     "speedLabel": "Velocidad de reproducción",
     "openInNewTab": "Se abre en una pestaña nueva"
+  },
+  "advanced": {
+    "title": "Recuperación avanzada",
+    "optional": "Opcional",
+    "explain": "Al vincular, WhatsApp no entrega una referencia de cada conversación, y sin ella no se le puede pedir lo anterior. Un segundo dispositivo vinculado sí las ve.",
+    "pending": "{{n}} conversaciones todavía no tienen una referencia suficiente para recuperar su historial.",
+    "link": "Vincular segundo dispositivo",
+    "steps": "En tu teléfono: WhatsApp › Dispositivos vinculados › Vincular un dispositivo.",
+    "qrAlt": "Código QR para vincular el segundo dispositivo",
+    "waitingQr": "Preparando el código…",
+    "active": "Recuperación avanzada activa.",
+    "disable": "Desactivar recuperación avanzada",
+    "disableHint": "Se detiene el proceso. El dispositivo sigue vinculado y no hay que volver a escanear nada.",
+    "notNeeded": "No hace falta: todas tus conversaciones tienen ya lo necesario para recuperar su historial."
   }
 }

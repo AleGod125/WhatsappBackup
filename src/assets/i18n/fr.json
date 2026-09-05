@@ -44,7 +44,14 @@
     "fullRecovery": "Récupérer tout l'historique",
     "details": "Détails",
     "hide": "Masquer",
-    "background": "Récupération en arrière-plan"
+    "background": "Récupération en arrière-plan",
+    "stateDone": "Tout est à jour",
+    "stateRecovering": "Récupération de l’historique…",
+    "stateRetrying": "Nouvelle tentative…",
+    "statePreparing": "Préparation des conversations…",
+    "stateErrors": "Certaines n’ont pas pu être récupérées",
+    "openDetail": "Voir le détail de la synchronisation",
+    "messages": "messages enregistrés"
   },
   "chatStatus": {
     "SYNCED": "Synchronisée",
@@ -72,7 +79,8 @@
     "account": "Compte",
     "resetSection": "Réinitialiser cette section",
     "resetAll": "Tout réinitialiser",
-    "resetConfirm": "Les réglages reviennent à leurs valeurs par défaut. Aucune conversation ni aucun message n'est supprimé."
+    "resetConfirm": "Les réglages reviennent à leurs valeurs par défaut. Aucune conversation ni aucun message n'est supprimé.",
+    "recovery": "Synchronisation et récupération"
   },
   "theme": {
     "title": "Thème",
@@ -179,5 +187,19 @@
     "openLink": "Ouvrir le lien",
     "speedLabel": "Vitesse de lecture",
     "openInNewTab": "S'ouvre dans un nouvel onglet"
+  },
+  "advanced": {
+    "title": "Récupération avancée",
+    "optional": "Facultatif",
+    "explain": "Lors de l’association, WhatsApp ne fournit pas de référence pour chaque conversation, et sans elle son historique ne peut pas être demandé. Un second appareil associé, lui, les voit.",
+    "pending": "{{n}} conversations n’ont pas encore de référence suffisante pour récupérer leur historique.",
+    "link": "Associer un second appareil",
+    "steps": "Sur votre téléphone : WhatsApp › Appareils connectés › Connecter un appareil.",
+    "qrAlt": "Code QR pour associer le second appareil",
+    "waitingQr": "Préparation du code…",
+    "active": "Récupération avancée active.",
+    "disable": "Désactiver la récupération avancée",
+    "disableHint": "Cela arrête le processus. L’appareil reste associé et vous n’aurez rien à rescanner.",
+    "notNeeded": "Inutile : toutes vos conversations ont déjà ce qu’il faut pour récupérer leur historique."
   }
 }

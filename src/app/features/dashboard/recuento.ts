@@ -37,7 +37,8 @@ export interface Recuento {
   total: number;
 }
 
-const VACIO: Recuento = {
+/** Todo a cero. Sirve de valor por defecto donde aún no hay conversaciones. */
+export const RECUENTO_VACIO: Recuento = {
   recuperados: 0,
   recuperandose: 0,
   reintentando: 0,
@@ -60,7 +61,7 @@ const CASILLA: Record<EstadoDeChat, keyof Omit<Recuento, 'total'>> = {
 };
 
 export function contar(chats: readonly Chat[], esperandoTelefono = false): Recuento {
-  const recuento: Recuento = { ...VACIO, total: chats.length };
+  const recuento: Recuento = { ...RECUENTO_VACIO, total: chats.length };
   for (const chat of chats) {
     recuento[CASILLA[claveDeEstado(chat, esperandoTelefono)]] += 1;
   }

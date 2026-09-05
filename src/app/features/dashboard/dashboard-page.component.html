@@ -31,23 +31,16 @@
         }}
       </p>
     }
-    <!-- UNA sola fuente visual de estado. Antes había cuatro bloques
-         contando lo mismo y entre todos se comían medio panel. -->
-    <app-recovery-status [recuento]="recuento()" />
-    <!-- El paso 2 de la puesta en marcha, y el progreso mientras dura.
-         Desaparece solo cuando ya no hay nada que contar. -->
-    <app-onboarding-panel />
-    <!-- Compacto a propósito: lo que hace falta a diario y nada más. Todo lo
-         demás vive en «Avanzado», que en móvil no roba sitio a la lista. -->
-    <app-sync-panel
-      [status]="sync()"
-      [running]="syncRunning()"
-      [disabled]="syncDisabled()"
-      [tooltip]="syncTooltip()"
-      [waitingForPhone]="waitingForPhone()"
-      [pendingChats]="chatsPendientes()"
-      (sync)="runSync()"
-      (fullRecovery)="runFullRecovery()"
+    <!-- UNA sola representación del estado, y de una línea.
+         Aquí había tres componentes apilados: la tarjeta de recuperación, el
+         panel de puesta en marcha —con un código QR grande dentro— y el panel
+         de sincronización con sus dos botones. Entre los tres se comían media
+         barra lateral, y el segundo código aparecía sin que nadie lo pidiera.
+         Todo el detalle vive ahora en Ajustes › Sincronización y recuperación. -->
+    <app-progress-toolbar
+      [recuento]="recuento()"
+      [mensajes]="mensajesGuardados()"
+      (abrirDetalle)="abrirRecuperacion()"
     />
   </section>
   <section class="main-panel">
@@ -133,5 +126,14 @@
 <!-- La configuración del producto. Encima de todo, pero sin cortar lo de
      detrás: casi todo lo de dentro se decide mirando la aplicación. -->
 @if (settingsOpen()) {
-  <app-settings-panel (cerrar)="settingsOpen.set(false)" />
+  <app-settings-panel
+    [seccionInicial]="seccionDeAjustes()"
+    [recuento]="recuento()"
+    [mensajes]="mensajesGuardados()"
+    [sincronizando]="syncRunning()"
+    [avanzadaDisponible]="webCompanionEnabled() && !needsRelink()"
+    (sincronizar)="runSync()"
+    (recuperarTodo)="runFullRecovery()"
+    (cerrar)="settingsOpen.set(false)"
+  />
 }

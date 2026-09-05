@@ -44,7 +44,14 @@
     "fullRecovery": "Recuperar histórico completo",
     "details": "Detalhes",
     "hide": "Ocultar",
-    "background": "A recuperar em segundo plano"
+    "background": "A recuperar em segundo plano",
+    "stateDone": "Tudo em dia",
+    "stateRecovering": "A recuperar histórico…",
+    "stateRetrying": "A tentar de novo…",
+    "statePreparing": "A preparar as conversas…",
+    "stateErrors": "Algumas não puderam ser recuperadas",
+    "openDetail": "Ver os detalhes da sincronização",
+    "messages": "mensagens guardadas"
   },
   "chatStatus": {
     "SYNCED": "Sincronizada",
@@ -72,7 +79,8 @@
     "account": "Conta",
     "resetSection": "Repor esta secção",
     "resetAll": "Repor tudo",
-    "resetConfirm": "As definições voltam aos valores predefinidos. Nenhuma conversa nem mensagem é apagada."
+    "resetConfirm": "As definições voltam aos valores predefinidos. Nenhuma conversa nem mensagem é apagada.",
+    "recovery": "Sincronização e recuperação"
   },
   "theme": {
     "title": "Tema",
@@ -179,5 +187,19 @@
     "openLink": "Abrir ligação",
     "speedLabel": "Velocidade de reprodução",
     "openInNewTab": "Abre num separador novo"
+  },
+  "advanced": {
+    "title": "Recuperação avançada",
+    "optional": "Opcional",
+    "explain": "Ao vincular, o WhatsApp não entrega uma referência de cada conversa e, sem ela, não é possível pedir o histórico anterior. Um segundo dispositivo vinculado vê-as.",
+    "pending": "{{n}} conversas ainda não têm uma referência suficiente para recuperar o seu histórico.",
+    "link": "Vincular segundo dispositivo",
+    "steps": "No teu telemóvel: WhatsApp › Dispositivos vinculados › Vincular um dispositivo.",
+    "qrAlt": "Código QR para vincular o segundo dispositivo",
+    "waitingQr": "A preparar o código…",
+    "active": "Recuperação avançada ativa.",
+    "disable": "Desativar recuperação avançada",
+    "disableHint": "Para o processo. O dispositivo continua vinculado e não é preciso voltar a ler nada.",
+    "notNeeded": "Não é necessário: todas as tuas conversas já têm o preciso para recuperar o histórico."
   }
 }

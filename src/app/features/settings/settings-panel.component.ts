@@ -3,10 +3,13 @@ import {
   Component,
   computed,
   inject,
+  input,
   output,
   signal,
 } from '@angular/core';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { RecoverySectionComponent } from './recovery-section.component';
+import { RECUENTO_VACIO, Recuento } from '../dashboard/recuento';
 import { I18nService, IDIOMAS, Idioma } from '../../core/i18n/i18n.service';
 import {
   Densidad,
@@ -38,7 +41,7 @@ import {
 @Component({
   selector: 'app-settings-panel',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, RecoverySectionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="velo" (click)="cerrar.emit()"></div>
@@ -200,6 +203,18 @@ import {
           </section>
         }
 
+        <!-- ------------------------------ Sincronizacion y recuperacion -->
+        @if (muestra('recovery')) {
+          <app-recovery-section
+            [recuento]="recuento()"
+            [mensajes]="mensajes()"
+            [sincronizando]="sincronizando()"
+            [avanzadaDisponible]="avanzadaDisponible()"
+            (sincronizar)="sincronizar.emit()"
+            (recuperarTodo)="recuperarTodo.emit()"
+          />
+        }
+
         <!-- -------------------------------------------------- Accesibilidad -->
         @if (muestra('accessibility')) {
           <section>
@@ -267,6 +282,21 @@ export class SettingsPanelComponent {
 
   /** El padre lo escucha para desmontar el panel. */
   readonly cerrar = output<void>();
+
+  /**
+   * Con qué sección abrirlo.
+   *
+   * La barra de progreso de la lista abre directamente en «Sincronización y
+   * recuperación»: si abriera por el principio, el usuario tendría que buscar
+   * lo que acaba de pedir.
+   */
+  readonly seccionInicial = input<string>('');
+  readonly recuento = input<Recuento>(RECUENTO_VACIO);
+  readonly mensajes = input<number>(0);
+  readonly sincronizando = input<boolean>(false);
+  readonly avanzadaDisponible = input<boolean>(false);
+  readonly sincronizar = output<void>();
+  readonly recuperarTodo = output<void>();
   readonly filtro = signal('');
   readonly confirmando = signal(false);
 
@@ -279,7 +309,13 @@ export class SettingsPanelComponent {
   readonly tokens: readonly TokenDeColor[] = TOKENS_DE_COLOR;
 
   /** Las secciones que existen, para poder filtrarlas por nombre. */
-  private readonly secciones = ['appearance', 'language', 'typography', 'accessibility'] as const;
+  private readonly secciones = [
+    'recovery',
+    'appearance',
+    'language',
+    'typography',
+    'accessibility',
+  ] as const;
 
   /**
    * Qué secciones se ven con el filtro puesto.
@@ -289,7 +325,15 @@ export class SettingsPanelComponent {
    */
   readonly visibles = computed(() => {
     const texto = this.filtro().trim().toLowerCase();
-    if (!texto) return [...this.secciones];
+    if (!texto) {
+      // Abierto desde la barra de progreso: sólo esa sección, para no obligar
+      // a buscar entre las demás lo que se acaba de pedir.
+      const pedida = this.seccionInicial();
+      if (pedida && (this.secciones as readonly string[]).includes(pedida)) {
+        return [pedida] as unknown as (typeof this.secciones)[number][];
+      }
+      return [...this.secciones];
+    }
     const t = this.i18n.t();
     return this.secciones.filter((seccion) =>
       t(`settings.${seccion}`).toLowerCase().includes(texto),

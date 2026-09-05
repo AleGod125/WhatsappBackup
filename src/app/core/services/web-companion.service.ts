@@ -128,6 +128,19 @@ export class WebCompanionService {
       .pipe(map(normalizeStatus));
   }
 
+  /**
+   * Apaga el worker. NO desvincula el teléfono.
+   *
+   * Son dos cosas distintas y confundirlas cuesta un código QR: parar el
+   * proceso deja la sesión guardada intacta, así que volver a activar la
+   * recuperación avanzada no vuelve a pedir nada.
+   */
+  stop(): Observable<WebCompanionStatus> {
+    return this.api
+      .post<Record<string, unknown>>('/web-companion/stop', {})
+      .pipe(map(normalizeStatus));
+  }
+
   inventory(): Observable<WebCompanionInventory> {
     return this.api
       .post<Record<string, unknown>>('/web-companion/inventory', {})
