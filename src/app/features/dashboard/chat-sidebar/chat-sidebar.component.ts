@@ -15,12 +15,13 @@ import { I18nService } from '../../../core/i18n/i18n.service';
 import { nombreVisible, textoBuscable } from '../../../shared/utils/nombre-visible';
 import { Chat } from '../../../core/models/api.models';
 import { AvatarComponent } from '../../../shared/components/avatar.component';
+import { HeaderMenuComponent } from '../header-menu.component';
 import { previewFor } from '../../../shared/utils/display';
 import { estadoDeChat, lineaDeLista } from '../chat-estado';
 
 @Component({
   selector: 'app-chat-sidebar',
-  imports: [ScrollingModule, FormsModule, DatePipe, AvatarComponent],
+  imports: [ScrollingModule, FormsModule, DatePipe, AvatarComponent, HeaderMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './chat-sidebar.component.html',
   styleUrl: './chat-sidebar.component.scss',
@@ -31,6 +32,10 @@ export class ChatSidebarComponent {
   chats = input.required<Chat[]>();
   selectedId = input<string>();
   loading = input(false);
+  /** Para no ofrecer «Sincronizar» mientras ya se esta sincronizando. */
+  sincronizando = input(false);
+  /** El menu pide sincronizar; quien sabe hacerlo es el panel. */
+  readonly sincronizar = output<void>();
   /** Mensaje si la carga fallo. Se distingue de la lista vacia. */
   error = input<string | undefined>(undefined);
   retry = output<void>();

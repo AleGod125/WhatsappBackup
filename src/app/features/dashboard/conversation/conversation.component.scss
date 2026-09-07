@@ -75,3 +75,44 @@ footer {
   box-shadow: 0 5px 18px rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
+
+/* El indicador de recuperación, encima del historial.
+   Discreto a propósito: informa sin tapar lo que el usuario ha venido a leer. */
+.recuperando {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 14px;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  background: var(--surface-hover, rgba(127, 127, 127, 0.06));
+  border-bottom: 1px solid var(--border);
+}
+.recuperando .que {
+  flex: 1;
+  min-width: 0;
+}
+.recuperando .cuantos {
+  font-variant-numeric: tabular-nums;
+}
+/* Sin giro cuando espera referencia: no hay nada girando por lo que esperar. */
+.recuperando .giro {
+  width: 11px;
+  height: 11px;
+  flex: none;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: giro-historial 0.8s linear infinite;
+}
+@keyframes giro-historial {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recuperando .giro {
+    animation: none;
+  }
+}

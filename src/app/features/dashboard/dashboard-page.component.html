@@ -16,7 +16,9 @@
       [loading]="loading()"
       [error]="error()"
       [waitingForPhone]="waitingForPhone()"
+      [sincronizando]="syncRunning()"
       (retry)="reloadChats()"
+      (sincronizar)="runSync()"
       (chatSelected)="select($event)"
     />
     <!-- Discreto a propósito: sólo importa cuando NO está en vivo, y ahí

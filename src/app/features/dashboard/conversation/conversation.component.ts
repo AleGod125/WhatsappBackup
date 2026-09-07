@@ -15,6 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { Chat, Media, Message, MessageCursor, RecheckJob } from '../../../core/models/api.models';
 import { MessageService } from '../../../core/services/message.service';
+import { HistoryProgressService } from './history-progress';
 import { AvatarComponent } from '../../../shared/components/avatar.component';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MediaViewerComponent } from '../media/media-viewer.component';
@@ -27,6 +28,7 @@ import { HistoryRecheckPanelComponent } from '../recheck/history-recheck-panel.c
 import { HistoryRecheckService } from '../../../core/services/history-recheck.service';
 
 import { estadoDeChat } from '../chat-estado';
+import { sseDebug } from '../../../core/events/sse-debug';
 
 @Component({
   selector: 'app-conversation',
@@ -68,6 +70,7 @@ export class ConversationComponent implements OnChanges {
 
   chat = input.required<Chat>();
   private readonly messagesApi = inject(MessageService);
+  private readonly historial = inject(HistoryProgressService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly recheckApi = inject(HistoryRecheckService);
   private readonly list = viewChild(MessageListComponent);
@@ -111,10 +114,24 @@ export class ConversationComponent implements OnChanges {
       });
   }
   append(message: Message) {
-    if (message.chatId !== this.chat().id || this.messages().some((item) => item.id === message.id))
+    // Los dos motivos por los que un mensaje NO entra, dichos en voz alta:
+    // descartar en silencio es lo que hizo que un id entero comparado con una
+    // cadena tirara todos los mensajes sin dejar rastro.
+    if (message.chatId !== this.chat().id) {
+      sseDebug('ignored', {
+        reason: 'otra conversacion',
+        llega: message.chatId,
+        abierta: this.chat().id,
+      });
       return;
+    }
+    if (this.messages().some((item) => item.id === message.id)) {
+      sseDebug('ignored', { reason: 'ya estaba', id: message.id });
+      return;
+    }
     const follow = this.list()?.isNearBottom() ?? true;
     this.messages.update((items) => [...items, message]);
+    sseDebug('appended', { id: message.id, chat: message.chatId, follow });
     if (follow) queueMicrotask(() => this.list()?.scrollToBottom(true));
     else this.newMessages.update((count) => count + 1);
   }
@@ -162,6 +179,56 @@ export class ConversationComponent implements OnChanges {
   reload() {
     this.loadInitial();
   }
+  /**
+   * El indicador de recuperacion, para la plantilla.
+   *
+   * Se expone el servicio entero en vez de copiar sus senales: copiarlas
+   * obliga a mantener dos verdades sincronizadas, y la que se queda vieja es
+   * siempre la copia.
+   */
+  readonly historialEstado = this.historial.estado;
+  readonly historialVisible = this.historial.visible;
+  readonly historialGirando = this.historial.girando;
+  readonly historialRecuperados = this.historial.recuperados;
+
+  /**
+   * Sigue la recuperacion de esta conversacion, y trae lo que vaya entrando.
+   *
+   * DOS COSAS, Y LA SEGUNDA ES LA QUE IMPORTA
+   * -----------------------------------------
+   * 1. pide prioridad: el usuario la tiene abierta, asi que pasa delante de
+   *    todo en la cola de excavacion;
+   * 2. cuando entra un lote, **trae los mensajes**. Contar no basta: sin esto
+   *    el indicador diria "+50" y arriba no aparecia ni uno hasta recargar.
+   *
+   * El prepend lo hace `loadOlder`, que ya deduplica por identificador y ya
+   * preserva el viewport. No se reimplementa nada de eso aqui.
+   */
+  private seguirRecuperacion(chatId: string, token: number): void {
+    this.historial
+      .seguir(chatId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (respuesta) => {
+          if (token !== this.loadToken) return;
+          this.historial.aplicarRespuesta(
+            respuesta as { waiting_seed?: boolean; state?: string | null },
+          );
+        },
+        // Que no se pueda priorizar no rompe la conversacion: se sigue viendo
+        // lo que ya hay, que es lo que el usuario ha venido a leer.
+        error: () => undefined,
+      });
+
+    this.historial.lotes$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((entrante) => {
+        // Un lote de OTRA conversacion no puede tocar esta lista ni su scroll.
+        if (entrante !== String(this.chat().id) || token !== this.loadToken) return;
+        this.loadOlder();
+      });
+  }
+
   private loadInitial() {
     const token = ++this.loadToken;
     this.messages.set([]);
@@ -179,6 +246,7 @@ export class ConversationComponent implements OnChanges {
           this.hasMore.set(page.hasMore);
           this.loading.set(false);
           this.list()?.scrollToBottomAfterRender();
+          this.seguirRecuperacion(this.chat().id, token);
         },
         error: () => {
           if (token === this.loadToken) this.loading.set(false);

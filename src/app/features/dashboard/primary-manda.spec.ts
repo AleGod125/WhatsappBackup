@@ -289,6 +289,30 @@ describe('El cambio ocurre solo: sin F5', () => {
     expect(fixture.nativeElement.querySelector('app-web-companion-panel')).toBeNull();
   });
 
+  it('SI SE CAE LA SESION, SE SALE DEL PANEL: no se queda con un cartel', () => {
+    // El fallo que cierra P0: se vio `/dashboard` cargado con el cartel de
+    // «vuelve a vincular» dentro. Quedarse aqui es quedarse en una pantalla
+    // que no puede funcionar —no hay chats que traer ni historial que pedir—
+    // y lo unico que el usuario puede hacer, escanear, esta en /pairing.
+    const { events, navigate } = montarTablero();
+    expect(navigate).not.toHaveBeenCalled();
+
+    events.next({ type: 'session.state', data: { state: 'NO_SESSION' } });
+
+    expect(navigate).toHaveBeenCalledWith(['/pairing']);
+  });
+
+  it('un corte pasajero NO saca del panel', () => {
+    // Sin esto, cada bache de red echaria al usuario a la pantalla del codigo
+    // a rehacer algo que no esta roto.
+    const { events, navigate } = montarTablero();
+
+    events.next({ type: 'session.state', data: { state: 'CONNECTING' } });
+    events.next({ type: 'session.state', data: { state: 'DISCONNECTED' } });
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it('cuando vuelve a conectar, el aviso se va solo', () => {
     const { fixture, events } = montarTablero({ connected: false, state: 'NO_SESSION' });
     expect(fixture.nativeElement.textContent).toContain('volver a vincular');

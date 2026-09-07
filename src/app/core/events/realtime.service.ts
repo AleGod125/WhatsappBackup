@@ -1,4 +1,5 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core';
+import { sseDebug } from './sse-debug';
 import { Observable, Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { RealtimeEnvelope } from '../models/api.models';
@@ -39,6 +40,15 @@ export const EVENT_NAMES = [
   'history.progress',
   'backfill.progress',
   'sync.status',
+  // El detalle por conversacion, para la vista del chat abierto. Sin esto el
+  // navegador DESCARTA los eventos: `EventSource` solo entrega los que tienen
+  // un escuchador registrado con ese nombre exacto.
+  'history.chat.started',
+  'history.chat.progress',
+  'history.chat.retrying',
+  'history.chat.waiting_seed',
+  'history.chat.completed',
+  'history.chat.error',
   'history.recheck.started',
   'history.recheck.progress',
   'history.recheck.completed',
@@ -118,6 +128,7 @@ export class RealtimeService {
       this.zone.run(() => {
         this.ultimaSenal = Date.now();
         this.state.set('LIVE');
+        sseDebug('connected');
         this.connectionSubject.next('connected');
       });
     source.onerror = () =>

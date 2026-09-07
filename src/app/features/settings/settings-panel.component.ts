@@ -1,12 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SessionExitService } from '../../core/services/session-exit.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { RecoverySectionComponent } from './recovery-section.component';
 import { RECUENTO_VACIO, Recuento } from '../dashboard/recuento';
@@ -253,6 +256,42 @@ import {
             </label>
           </section>
         }
+
+        @if (muestra('account')) {
+          <!--
+            Cerrar sesion, la SEGUNDA puerta.
+            Es el mismo camino que el menu de los tres puntos: mismo servicio,
+            misma confirmacion, mismo orden. No hay una segunda version de la
+            logica, porque la segunda version es la que se queda a medias.
+          -->
+          <section>
+            <h3>{{ 'settings.account' | t }}</h3>
+            @if (confirmandoSalida()) {
+              <p class="aviso">{{ 'settings.logoutConfirm' | t }}</p>
+              <div class="acciones">
+                <button
+                  type="button"
+                  class="secundario"
+                  (click)="confirmandoSalida.set(false)"
+                >
+                  {{ 'common.cancel' | t }}
+                </button>
+                <button type="button" class="peligro" [disabled]="saliendo()" (click)="salir()">
+                  {{ 'settings.logout' | t }}
+                </button>
+              </div>
+            } @else {
+              <button
+                type="button"
+                class="secundario"
+                [disabled]="saliendo()"
+                (click)="confirmandoSalida.set(true)"
+              >
+                {{ 'settings.logout' | t }}
+              </button>
+            }
+          </section>
+        }
       </div>
 
       <footer>
@@ -308,6 +347,32 @@ export class SettingsPanelComponent {
   readonly interlineados: Interlineado[] = ['tight', 'normal', 'relaxed'];
   readonly tokens: readonly TokenDeColor[] = TOKENS_DE_COLOR;
 
+  /** La confirmacion de salir, aparte de la de restaurar ajustes. */
+  readonly confirmandoSalida = signal(false);
+  readonly saliendo = signal(false);
+
+  private readonly salida = inject(SessionExitService);
+  private readonly destroyRefSalida = inject(DestroyRef);
+
+  /**
+   * Cierra la sesion. EXACTAMENTE el mismo flujo que el menu del encabezado.
+   *
+   * No desvincula WhatsApp: la proxima vez que este usuario entre, si su
+   * vinculacion sigue valida, va directo al panel sin escanear nada.
+   */
+  salir(): void {
+    if (this.saliendo()) return;
+    this.saliendo.set(true);
+    this.salida
+      .salir()
+      .pipe(takeUntilDestroyed(this.destroyRefSalida))
+      .subscribe({
+        next: () => this.saliendo.set(false),
+        error: () => this.saliendo.set(false),
+        complete: () => this.saliendo.set(false),
+      });
+  }
+
   /** Las secciones que existen, para poder filtrarlas por nombre. */
   private readonly secciones = [
     'recovery',
@@ -315,6 +380,7 @@ export class SettingsPanelComponent {
     'language',
     'typography',
     'accessibility',
+    'account',
   ] as const;
 
   /**

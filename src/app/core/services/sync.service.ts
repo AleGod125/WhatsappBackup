@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiClientService } from '../api/api-client.service';
-import { SyncStatus, SyncSummary } from '../models/api.models';
+import { SyncRecovery, SyncStatus, SyncSummary } from '../models/api.models';
 import { map } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class SyncService {
@@ -74,6 +74,7 @@ export function normalizeSyncStatus(r: Record<string, unknown>): SyncStatus {
     // La fase en curso, para poder decir algo mas util que "sincronizando".
     phase: typeof r['phase'] === 'string' ? (r['phase'] as string) : undefined,
     summary: normalizeSummary(r),
+    recovery: normalizeRecovery(r),
   };
 }
 /**
@@ -95,6 +96,21 @@ function normalizeSummary(r: Record<string, unknown>): SyncSummary | undefined {
     recoveredMessages: numberValue(v['recovered_messages']),
     newSeeds: numberValue(v['new_seeds']),
     drivePending: numberValue(v['drive_pending']),
+  };
+}
+/** Lo que cambio en esta pasada. `undefined` si el backend no lo manda. */
+function normalizeRecovery(r: Record<string, unknown>): SyncRecovery | undefined {
+  const v = r['recovery'];
+  if (!v || typeof v !== 'object') return undefined;
+  const o = v as Record<string, unknown>;
+  return {
+    waitingBefore: numberValue(o['waiting_before']),
+    waitingAfter: numberValue(o['waiting_after']),
+    promoted: numberValue(o['promoted']),
+    seedsFound: numberValue(o['seeds_found']),
+    newChats: numberValue(o['new_chats']),
+    messagesAdded: numberValue(o['messages_added']),
+    backfillStarted: numberValue(o['backfill_started']),
   };
 }
 const numberValue = (value: unknown): number | undefined =>

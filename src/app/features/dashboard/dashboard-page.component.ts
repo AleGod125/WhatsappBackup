@@ -20,6 +20,7 @@ import {
 } from '../../core/models/api.models';
 import { ChatService, normalizeChat } from '../../core/services/chat.service';
 import { normalizeMedia, normalizeMessage } from '../../core/services/message.service';
+import { sseDebug } from '../../core/events/sse-debug';
 import { RealtimeService } from '../../core/events/realtime.service';
 import { SyncService, normalizeSyncStatus } from '../../core/services/sync.service';
 import { LeftRailComponent } from './left-rail.component';
@@ -451,7 +452,15 @@ export class DashboardPageComponent implements OnInit {
             .subscribe({
               next: (session) => {
                 this.disconnected.set(!session.connected);
-                this.needsRelink.set(hayQueVolverAVincular(session.state, session.connected));
+                const sinVinculo = hayQueVolverAVincular(
+                  session.state,
+                  session.connected,
+                );
+                this.needsRelink.set(sinVinculo);
+                // Y ESTE era el camino de la captura: el panel se montaba,
+                // leia la sesion, veia que no habia vinculacion... y se
+                // quedaba ensenando un cartel. Ahora sale.
+                if (sinVinculo) void this.router.navigate(['/pairing']);
               },
             });
         },
@@ -472,12 +481,26 @@ export class DashboardPageComponent implements OnInit {
     if (type === 'session.state' && data && typeof data === 'object') {
       const raw = data as Record<string, unknown>;
       const state = String(raw['state'] ?? raw['status'] ?? '').toUpperCase();
-      if (state === 'SESSION_INVALID') this.router.navigate(['/pairing']);
+      // CUALQUIER estado sin vinculacion saca del panel, no solo
+      // SESSION_INVALID. Quedarse aqui con un cartel es quedarse en una
+      // pantalla que no puede funcionar: no hay chats que traer, no hay
+      // historial que pedir y no hay nada que el usuario pueda hacer desde
+      // aqui. Lo unico que puede hacer es escanear, y eso esta en /pairing.
+      const sinVinculo = hayQueVolverAVincular(state, state === 'CONNECTED');
+
       if (state === 'CONNECTED') this.disconnected.set(false);
       else if (state !== 'CONNECTING') this.disconnected.set(true);
       // Y se distingue el corte pasajero del vinculo que ya no existe: son
       // dos mensajes distintos y dos salidas distintas para el usuario.
-      this.needsRelink.set(hayQueVolverAVincular(state, state === 'CONNECTED'));
+      this.needsRelink.set(sinVinculo);
+
+      // El estado se apunta ANTES de navegar, igual que en la lectura
+      // inicial. La navegacion es la salida de verdad; el aviso es la red
+      // por debajo, para el instante que tarda en resolverse y por si un
+      // guard la frena. Salir sin apuntar nada dejaba el panel entero
+      // —el del segundo dispositivo incluido— pintado como si la sesion
+      // seguiera viva.
+      if (sinVinculo) void this.router.navigate(['/pairing']);
     }
     if (type === 'sync.status' && data && typeof data === 'object') {
       const previous = this.sync();
@@ -562,10 +585,16 @@ export class DashboardPageComponent implements OnInit {
     // cincuenta descubrimientos en cincuenta peticiones.
     if (type === 'chat.created' || type === 'chat.updated') {
       const chat = normalizeChat(unwrap(data, 'chat'));
+      sseDebug(`${type} received`, { chat: chat.id });
       if (chat.id) this.upsertChat(chat);
     }
     if (type === 'message.created') {
       const message = normalizeMessage(unwrap(data, 'message'));
+      sseDebug('message.created received', {
+        chat: message.chatId,
+        id: message.id,
+        abierta: this.conversation()?.chat()?.id,
+      });
       this.conversation()?.append(message);
       const current = this.chats().find((c) => c.id === message.chatId);
       if (current)

@@ -80,7 +80,9 @@
     "resetSection": "Diesen Bereich zurücksetzen",
     "resetAll": "Alles zurücksetzen",
     "resetConfirm": "Die Einstellungen gehen auf die Standardwerte zurück. Es wird kein Chat und keine Nachricht gelöscht.",
-    "recovery": "Synchronisierung und Wiederherstellung"
+    "recovery": "Synchronisierung und Wiederherstellung",
+    "logout": "Abmelden",
+    "logoutConfirm": "Du musst dich erneut anmelden, um wieder in dein Konto zu gelangen. Dein WhatsApp bleibt verknüpft."
   },
   "theme": {
     "title": "Design",

@@ -80,7 +80,9 @@
     "resetSection": "Repor esta secção",
     "resetAll": "Repor tudo",
     "resetConfirm": "As definições voltam aos valores predefinidos. Nenhuma conversa nem mensagem é apagada.",
-    "recovery": "Sincronização e recuperação"
+    "recovery": "Sincronização e recuperação",
+    "logout": "Encerrar sessão",
+    "logoutConfirm": "Vais precisar de iniciar sessão outra vez para voltar à tua conta. O teu WhatsApp continua associado."
   },
   "theme": {
     "title": "Tema",

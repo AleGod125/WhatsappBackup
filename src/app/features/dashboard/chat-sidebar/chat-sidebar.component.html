@@ -3,7 +3,11 @@
     <div>
       <h1>WhatsApp Backup</h1>
     </div>
-    <button aria-label="Más opciones">•••</button>
+    <!-- Era un boton sin manejador. Ahora abre el menu de verdad. -->
+    <app-header-menu
+      [sincronizando]="sincronizando()"
+      (sincronizar)="sincronizar.emit()"
+    />
   </header>
   <div class="search">
     <span>⌕</span

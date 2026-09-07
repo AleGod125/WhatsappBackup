@@ -80,7 +80,9 @@
     "resetSection": "Restaurar esta sección",
     "resetAll": "Restaurar todo",
     "resetConfirm": "Se volverá a los valores predeterminados. No se borra ninguna conversación ni ningún mensaje.",
-    "recovery": "Sincronización y recuperación"
+    "recovery": "Sincronización y recuperación",
+    "logout": "Cerrar sesión",
+    "logoutConfirm": "Tendrás que iniciar sesión de nuevo para entrar a tu cuenta. Tu cuenta de WhatsApp seguirá vinculada."
   },
   "theme": {
     "title": "Tema",

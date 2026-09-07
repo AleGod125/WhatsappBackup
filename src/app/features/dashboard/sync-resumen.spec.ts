@@ -70,3 +70,75 @@ describe('Resumen honesto de la sincronización', () => {
     );
   });
 });
+
+/**
+ * Lo que CAMBIO por haber pulsado.
+ *
+ * El ciclo llego a anunciar «3410 referencias nuevas» con **cero**
+ * conversaciones desatascadas. Las 3410 eran de verdad, pero salian de
+ * excavar ocho conversaciones que ya funcionaban: el numero grande sugeria un
+ * avance que no existia.
+ */
+describe('El boton dice si sirvio de algo', () => {
+  it('lo primero que cuenta es cuantas se desatascaron', () => {
+    const texto = resumenDeSync({
+      state: 'complete',
+      messagesNew: 0,
+      summary: { newSeeds: 3410, waitingSeed: 31 },
+      recovery: { waitingBefore: 32, waitingAfter: 31, promoted: 1, seedsFound: 3410 },
+    });
+
+    expect(texto).toContain('1 conversación ya puede pedir su historial');
+  });
+
+  it('SI NO CAMBIO NADA, LO DICE', () => {
+    // La regla que evita el «éxito» generico: se busco, no aparecio nada, y
+    // eso es lo que hay que contar.
+    const texto = resumenDeSync({
+      state: 'complete',
+      messagesNew: 0,
+      summary: { newSeeds: 3410, waitingSeed: 32 },
+      recovery: { waitingBefore: 32, waitingAfter: 32, promoted: 0, seedsFound: 3410 },
+    });
+
+    expect(texto).toContain('No apareció ninguna referencia nueva');
+    expect(texto).toContain('32 conversaciones siguen esperando');
+  });
+
+  it('el recuento de referencias sigue estando, pero no va primero', () => {
+    const texto = resumenDeSync({
+      state: 'complete',
+      messagesNew: 0,
+      summary: { newSeeds: 3410, waitingSeed: 31 },
+      recovery: { waitingBefore: 32, waitingAfter: 31, promoted: 1 },
+    });
+
+    expect(texto).toContain('3410 referencias nuevas');
+    expect(texto.indexOf('ya puede pedir su historial')).toBeLessThan(
+      texto.indexOf('3410 referencias nuevas'),
+    );
+  });
+
+  it('cuenta las conversaciones nuevas descubiertas', () => {
+    const texto = resumenDeSync({
+      state: 'complete',
+      messagesNew: 0,
+      summary: { waitingSeed: 0 },
+      recovery: { waitingBefore: 0, waitingAfter: 0, promoted: 0, newChats: 2 },
+    });
+
+    expect(texto).toContain('2 conversaciones nuevas');
+  });
+
+  it('sin el bloque nuevo el resumen de siempre no cambia', () => {
+    const texto = resumenDeSync({
+      state: 'complete',
+      messagesNew: 12,
+      summary: { waitingSeed: 0 },
+    });
+
+    expect(texto).toContain('12 mensajes');
+    expect(texto).not.toContain('No apareció ninguna referencia');
+  });
+});
+

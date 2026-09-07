@@ -33,6 +33,29 @@
     </div>
     <app-chat-menu [chat]="chat()" (guardado)="avisarDeGuardado()" />
   </header>
+  <!-- Encima del historial, no encima de la pantalla: el usuario tiene que
+       poder leer lo que ya hay mientras se recupera lo anterior. -->
+  @if (historialVisible()) {
+    <p class="recuperando" [class.quieto]="!historialGirando()" role="status">
+      @if (historialGirando()) {
+        <span class="giro" aria-hidden="true"></span>
+      }
+      <span class="que">
+        @switch (historialEstado()) {
+          @case ('recuperando') { Recuperando mensajes anteriores… }
+          @case ('reintentando') { Reintentando recuperación… }
+          @case ('esperando_referencia') {
+            Esperando una referencia de WhatsApp para recuperar mensajes anteriores.
+          }
+          @case ('error') { No se pudieron recuperar más mensajes por ahora. }
+          @default { Recuperando mensajes anteriores… }
+        }
+      </span>
+      @if (historialRecuperados() > 0) {
+        <span class="cuantos">+{{ historialRecuperados() }}</span>
+      }
+    </p>
+  }
   <app-message-list
     [messages]="messages()"
     [loading]="loading()"

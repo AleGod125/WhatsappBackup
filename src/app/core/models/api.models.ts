@@ -194,6 +194,24 @@ export interface SyncSummary {
   newSeeds?: number;
   drivePending?: number;
 }
+/**
+ * Lo que CAMBIO por haber pulsado, que es otra pregunta que "como esta todo".
+ *
+ * Nace de un numero enganoso: el ciclo decia «3410 referencias nuevas» con
+ * cero conversaciones desatascadas. Las 3410 eran reales, pero salian de
+ * excavar ocho conversaciones que ya funcionaban. Lo que contesta si sirvio
+ * de algo es `promoted`, y el par `waitingBefore`/`waitingAfter`.
+ */
+export interface SyncRecovery {
+  waitingBefore?: number;
+  waitingAfter?: number;
+  /** Conversaciones que pasaron de esperar a poder pedir su historial. */
+  promoted?: number;
+  seedsFound?: number;
+  newChats?: number;
+  messagesAdded?: number;
+  backfillStarted?: number;
+}
 export interface SyncStatus {
   connected?: boolean;
   state?: 'idle' | 'running' | 'complete' | 'error';
@@ -210,6 +228,7 @@ export interface SyncStatus {
   errors?: number;
   pending?: number;
   summary?: SyncSummary;
+  recovery?: SyncRecovery;
 }
 // --- Revision de historiales pendientes (ruta normal del producto) --------
 //

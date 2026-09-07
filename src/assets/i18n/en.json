@@ -80,7 +80,9 @@
     "resetSection": "Reset this section",
     "resetAll": "Reset everything",
     "resetConfirm": "Settings go back to their defaults. No conversation or message is deleted.",
-    "recovery": "Sync and recovery"
+    "recovery": "Sync and recovery",
+    "logout": "Log out",
+    "logoutConfirm": "You'll need to sign in again to get back into your account. Your WhatsApp stays linked."
   },
   "theme": {
     "title": "Theme",

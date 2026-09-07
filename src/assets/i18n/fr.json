@@ -80,7 +80,9 @@
     "resetSection": "Réinitialiser cette section",
     "resetAll": "Tout réinitialiser",
     "resetConfirm": "Les réglages reviennent à leurs valeurs par défaut. Aucune conversation ni aucun message n'est supprimé.",
-    "recovery": "Synchronisation et récupération"
+    "recovery": "Synchronisation et récupération",
+    "logout": "Se déconnecter",
+    "logoutConfirm": "Tu devras te reconnecter pour revenir sur ton compte. Ton WhatsApp reste associé."
   },
   "theme": {
     "title": "Thème",
